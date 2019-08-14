@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/rerost/issue-scheduler/repo"
-	"github.com/rerost/issue-scheduler/types"
+	"github.com/rerost/issue-creator/repo"
+	"github.com/rerost/issue-creator/types"
 )
 
 type TemplateData struct {

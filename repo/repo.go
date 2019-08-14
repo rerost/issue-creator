@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
-	"github.com/rerost/issue-scheduler/types"
+	"github.com/rerost/issue-creator/types"
 	"github.com/srvc/fail"
 )
 
