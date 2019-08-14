@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/repo"
 	"github.com/rerost/issue-creator/types"
+	"go.uber.org/zap"
 )
 
 type TemplateData struct {
@@ -18,6 +19,7 @@ type TemplateData struct {
 
 type IssueService interface {
 	Create(ctx context.Context, templateURL string) (types.Issue, error)
+	Render(ctx context.Context, templateURL string) (types.Issue, error)
 }
 
 type issueServiceImpl struct {
@@ -34,16 +36,19 @@ func NewIssueService(issueRepository repo.IssueRepository, currentTime time.Time
 
 // Render return not saved issue
 func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string) (types.Issue, error) {
+	zap.L().Debug("templateIssueURL", zap.String("templateIssueURL", templateIssueURL))
 	_templateIssue, err := is.ir.FindByURL(ctx, templateIssueURL)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}
 
-	titleTmpl, err := template.ParseGlob(_templateIssue.Title)
+	zap.L().Debug("template", zap.String("Title", _templateIssue.Title))
+	zap.L().Debug("template", zap.String("Body", _templateIssue.Body))
+	titleTmpl, err := template.New("title").Parse(_templateIssue.Title)
 	if err != nil {
 		return types.Issue{}, errors.Wrap(err, "Failed to parse title")
 	}
-	bodyTmpl, err := template.ParseGlob(_templateIssue.Body)
+	bodyTmpl, err := template.New("body").Parse(_templateIssue.Body)
 	if err != nil {
 		return types.Issue{}, errors.Wrap(err, "Failed to parse body")
 	}
@@ -76,6 +81,8 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 	}
 
 	return types.Issue{
+		Owner:        _templateIssue.Owner,
+		Repository:   _templateIssue.Repository,
 		Title:        title,
 		Body:         body,
 		Labels:       _templateIssue.Labels,
@@ -95,4 +102,8 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 	}
 
 	return i, nil
+}
+
+func (is *issueServiceImpl) Render(ctx context.Context, templateURL string) (types.Issue, error) {
+	return is.render(ctx, templateURL)
 }

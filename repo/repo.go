@@ -10,7 +10,7 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/types"
-	"github.com/srvc/fail"
+	"go.uber.org/zap"
 )
 
 type IssueRepository interface {
@@ -35,8 +35,22 @@ func (ir *issueRepositoryImpl) Create(ctx context.Context, issue types.Issue) (t
 		Body:   &issue.Body,
 		Labels: &issue.Labels,
 	}
-	ir.ghc.Issues.Create(ctx, issue.Owner, issue.Repository, &gi)
-	return types.Issue{}, nil
+	zap.L().Debug("create issue", zap.String("owner", issue.Owner))
+	zap.L().Debug("create issue", zap.String("repository", issue.Repository))
+	i, _, err := ir.ghc.Issues.Create(ctx, issue.Owner, issue.Repository, &gi)
+	if err != nil {
+		return types.Issue{}, errors.WithStack(err)
+	}
+	return types.Issue{
+		Owner:      issue.Owner,
+		Repository: issue.Repository,
+
+		Title:        i.GetTitle(),
+		Body:         i.GetBody(),
+		Labels:       types.FromGithubLabels(i.Labels),
+		URL:          i.HTMLURL,
+		LastIssueURL: issue.LastIssueURL,
+	}, nil
 }
 
 func (ir *issueRepositoryImpl) FindByURL(ctx context.Context, issueURL string) (types.Issue, error) {
@@ -76,13 +90,14 @@ func (ir *issueRepositoryImpl) FindLastIssueByLabel(ctx context.Context, issue t
 		"sort:created-desc",
 	)
 	githubSearchQuery := strings.Join(queries, " ")
+	zap.L().Debug("query", zap.String("github_search_query", githubSearchQuery))
 	r, _, err := ir.ghc.Search.Issues(ctx, githubSearchQuery, nil)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}
 
 	if r.GetTotal() == 0 || len(r.Issues) == 0 {
-		return types.Issue{}, fail.New("Not found last issue")
+		return types.Issue{}, errors.New("Not found last issue")
 	}
 
 	labels := types.FromGithubLabels(r.Issues[0].Labels)
@@ -111,18 +126,21 @@ func parseIssueURL(u string) (issueURLData, error) {
 
 	path := pu.Path
 	s := strings.Split(path, "/")
-	if len(s) != 3 {
+	zap.L().Debug("", zap.String("path", path))
+	// Expect: /:owner/:repository/issues/:issue_number
+	if len(s) != 5 {
+		zap.L().Debug("error", zap.Int("path length", len(s)))
 		return issueURLData{}, errors.New("Failed to parse url")
 	}
 
-	issueNumber, err := strconv.Atoi(s[2])
+	issueNumber, err := strconv.Atoi(s[4])
 	if err != nil {
 		return issueURLData{}, errors.WithStack(err)
 	}
 
 	return issueURLData{
-		Owner:       s[0],
-		Repository:  s[1],
+		Owner:       s[1],
+		Repository:  s[2],
 		IssueNumber: issueNumber,
 	}, nil
 }
