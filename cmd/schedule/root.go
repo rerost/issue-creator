@@ -3,6 +3,7 @@ package schedule
 import (
 	"context"
 
+	"github.com/rerost/issue-creator/domain/schedule"
 	"github.com/spf13/cobra"
 )
 

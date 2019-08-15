@@ -9,6 +9,7 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/google/wire"
 	"github.com/rerost/issue-creator/domain/issue"
+	"github.com/rerost/issue-creator/domain/schedule"
 	"github.com/rerost/issue-creator/repo"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
@@ -28,7 +29,20 @@ func NewGithubClient(ctx context.Context, cfg Config) *github.Client {
 	return c
 }
 
+func NewK8sCommand(cfg Config) []string {
+	return cfg.K8sCommands
+}
+
 func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
-	wire.Build(NewCmdRoot, issue.NewIssueService, repo.NewIssueRepository, CurrentTime, NewGithubClient)
+	wire.Build(
+		NewCmdRoot,
+		issue.NewIssueService,
+		repo.NewIssueRepository,
+		CurrentTime,
+		NewGithubClient,
+		schedule.NewScheduleService,
+		repo.NewScheduleRepository,
+		NewK8sCommand,
+	)
 	return nil, nil
 }

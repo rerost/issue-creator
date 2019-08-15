@@ -16,6 +16,7 @@ type Config struct {
 	Verbose              bool
 	Debug                bool
 	ManifestTemplateFile string
+	K8sCommands          []string
 }
 
 func Run() error {
@@ -61,7 +62,7 @@ func NewLogger(cfg Config) (*zap.Logger, error) {
 
 func NewConfig() (Config, error) {
 	pflag.StringP("GithubAccessToken", "", "", "Github Access Token")
-	pflag.StringP("ManifestTemplateFile", "./template.tpl", "", "k8s manifest file template path")
+	pflag.StringP("ManifestTemplateFile", "", "./template.tpl", "k8s manifest file template path")
 	pflag.BoolP("verbose", "v", false, "")
 	pflag.BoolP("debug", "d", false, "")
 

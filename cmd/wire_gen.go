@@ -9,6 +9,7 @@ import (
 	"context"
 	"github.com/google/go-github/github"
 	"github.com/rerost/issue-creator/domain/issue"
+	"github.com/rerost/issue-creator/domain/schedule"
 	"github.com/rerost/issue-creator/repo"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
@@ -22,7 +23,10 @@ func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
 	issueRepository := repo.NewIssueRepository(client)
 	time := CurrentTime(cfg)
 	issueService := issue.NewIssueService(issueRepository, time)
-	command := NewCmdRoot(ctx, issueService)
+	v := NewK8sCommand(cfg)
+	scheduleRepository := repo.NewScheduleRepository(v)
+	scheduleService := schedule.NewScheduleService(scheduleRepository)
+	command := NewCmdRoot(ctx, issueService, scheduleService)
 	return command, nil
 }
 
@@ -40,4 +44,8 @@ func NewGithubClient(ctx context.Context, cfg Config) *github.Client {
 
 	c := github.NewClient(tc)
 	return c
+}
+
+func NewK8sCommand(cfg Config) []string {
+	return cfg.K8sCommands
 }

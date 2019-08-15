@@ -5,7 +5,9 @@ import (
 
 	"github.com/rerost/issue-creator/cmd/create"
 	"github.com/rerost/issue-creator/cmd/render"
+	cmdschedule "github.com/rerost/issue-creator/cmd/schedule"
 	"github.com/rerost/issue-creator/domain/issue"
+	"github.com/rerost/issue-creator/domain/schedule"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +24,7 @@ func NewCmdRoot(
 	cmd.AddCommand(
 		render.NewRenderCommand(ctx, issueService),
 		create.NewCreateCommand(ctx, issueService),
-		schedule.NewScheduleCommand(ctx, scheduleService),
+		cmdschedule.NewScheduleCommand(ctx, scheduleService),
 	)
 
 	return cmd
