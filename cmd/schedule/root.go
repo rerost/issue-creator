@@ -7,14 +7,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewScheduleCommand(ctx context.Context, srv schedule.ScheduleService) *cobra.Command {
+func NewScheduleCommand(ctx context.Context, templateFile string, srv schedule.ScheduleService) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "schedule",
 		Short: "Schedule create github issue",
 	}
 
 	cmd.AddCommand(
-		NewRenderCommand(ctx, srv),
+		NewRenderCommand(ctx, templateFile, srv),
 		NewApplyCommand(ctx, srv),
 	)
 

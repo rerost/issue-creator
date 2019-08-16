@@ -15,6 +15,7 @@ func NewCmdRoot(
 	ctx context.Context,
 	issueService issue.IssueService,
 	scheduleService schedule.ScheduleService,
+	templateFile string,
 ) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "issue-creator",
@@ -24,7 +25,7 @@ func NewCmdRoot(
 	cmd.AddCommand(
 		render.NewRenderCommand(ctx, issueService),
 		create.NewCreateCommand(ctx, issueService),
-		cmdschedule.NewScheduleCommand(ctx, scheduleService),
+		cmdschedule.NewScheduleCommand(ctx, templateFile, scheduleService),
 	)
 
 	return cmd

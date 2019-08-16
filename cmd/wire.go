@@ -33,6 +33,10 @@ func NewK8sCommand(cfg Config) []string {
 	return cfg.K8sCommands
 }
 
+func NewTemplateFile(cfg Config) string {
+	return cfg.ManifestTemplateFile
+}
+
 func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
 	wire.Build(
 		NewCmdRoot,
@@ -43,6 +47,7 @@ func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
 		schedule.NewScheduleService,
 		repo.NewScheduleRepository,
 		NewK8sCommand,
+		NewTemplateFile,
 	)
 	return nil, nil
 }
