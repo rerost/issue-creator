@@ -108,7 +108,7 @@ func (ir *issueRepositoryImpl) FindLastIssueByLabel(ctx context.Context, issue t
 		Title:  r.Issues[0].GetTitle(),
 		Body:   r.Issues[0].GetBody(),
 		Labels: labels,
-		URL:    r.Issues[0].URL,
+		URL:    r.Issues[0].HTMLURL,
 	}, nil
 }
 
