@@ -1,6 +1,13 @@
 package schedule
 
-import "context"
+import (
+	"bytes"
+	"context"
+	"html/template"
+
+	"github.com/pkg/errors"
+	"github.com/rerost/issue-creator/repo"
+)
 
 type ScheduleService interface {
 	Render(ctx context.Context, templateFile string, schedule string, templateIssueURL string) (string, error)
@@ -9,14 +16,14 @@ type ScheduleService interface {
 
 type TemplateData struct {
 	Schedule string
-	Commands  []string
+	Commands []string
 }
 
 type scheduleServiceImpl struct {
-	sr ScheduleRepository
+	sr repo.ScheduleRepository
 }
 
-func NewScheduleService(scheduleRepository ScheduleRepository) ScheduleService {
+func NewScheduleService(scheduleRepository repo.ScheduleRepository) ScheduleService {
 	return &scheduleServiceImpl{
 		sr: scheduleRepository,
 	}
@@ -25,7 +32,7 @@ func NewScheduleService(scheduleRepository ScheduleRepository) ScheduleService {
 func (s *scheduleServiceImpl) Render(ctx context.Context, templateFile string, schedule string, templateIssueURL string) (string, error) {
 	templateData := TemplateData{
 		Schedule: schedule,
-		Command: ["issue-creator", "create", templateIssueURL]
+		Commands: []string{"issue-creator", "create", templateIssueURL},
 	}
 
 	manifestTpl, err := template.New("manifest").Parse(templateFile)
@@ -34,12 +41,12 @@ func (s *scheduleServiceImpl) Render(ctx context.Context, templateFile string, s
 	}
 
 	w := bytes.NewBufferString("")
-	err = bodyTmpl.Execute(w, manifestTpl)
+	err = manifestTpl.Execute(w, templateData)
 	if err != nil {
 		return "", errors.Wrap(err, "Failed to render manifest")
 	}
 
-	return string(w), nil
+	return w.String(), nil
 }
 
 func (s *scheduleServiceImpl) Apply(ctx context.Context, templateFile string, schedule string, templateIssueURL string) error {
@@ -53,4 +60,3 @@ func (s *scheduleServiceImpl) Apply(ctx context.Context, templateFile string, sc
 	}
 	return nil
 }
-

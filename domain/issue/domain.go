@@ -3,6 +3,7 @@ package issue
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"text/template"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 type TemplateData struct {
 	CurrentTime time.Time
 	LastIssue   types.Issue
+	AddDay      func(int) time.Time
 }
 
 type IssueService interface {
@@ -44,7 +46,9 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 
 	zap.L().Debug("template", zap.String("Title", _templateIssue.Title))
 	zap.L().Debug("template", zap.String("Body", _templateIssue.Body))
-	titleTmpl, err := template.New("title").Parse(_templateIssue.Title)
+	titleTmpl, err := template.New("title").Funcs(map[string]interface{}{
+		"AddDate": func(d int) time.Time { return is.ct.AddDate(0, 0, d) },
+	}).Parse(_templateIssue.Title)
 	if err != nil {
 		return types.Issue{}, errors.Wrap(err, "Failed to parse title")
 	}
@@ -63,14 +67,14 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 	}
 
 	tw := bytes.NewBufferString("")
-	err = titleTmpl.Execute(tw, TemplateData{CurrentTime: is.ct, LastIssue: lastIssue})
+	err = titleTmpl.Execute(tw, TemplateData{CurrentTime: is.ct, LastIssue: lastIssue, AddDay: func(d int) time.Time { return is.ct.AddDate(0, 0, d) }})
 	if err != nil {
 		return types.Issue{}, errors.Wrap(err, "Failed to render title")
 	}
 	title := string(tw.Bytes())
 
 	bw := bytes.NewBufferString("")
-	err = bodyTmpl.Execute(bw, TemplateData{CurrentTime: is.ct, LastIssue: lastIssue})
+	err = bodyTmpl.Execute(bw, TemplateData{CurrentTime: is.ct, LastIssue: lastIssue, AddDay: func(d int) time.Time { return is.ct.AddDate(0, 0, d) }})
 	if err != nil {
 		return types.Issue{}, errors.Wrap(err, "Failed to render body")
 	}
@@ -80,14 +84,19 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 		return types.Issue{}, errors.New("Invalid last issue passed(empty URL)")
 	}
 
-	return types.Issue{
+	res := types.Issue{
 		Owner:        _templateIssue.Owner,
 		Repository:   _templateIssue.Repository,
 		Title:        title,
 		Body:         body,
 		Labels:       _templateIssue.Labels,
 		LastIssueURL: *lastIssue.URL,
-	}, nil
+	}
+
+	s, _ := json.Marshal(res)
+	zap.L().Debug("template", zap.String("Issue", string(s)))
+
+	return res, nil
 }
 
 func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (types.Issue, error) {
