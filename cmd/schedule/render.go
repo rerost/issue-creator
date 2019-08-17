@@ -3,18 +3,29 @@ package schedule
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/domain/schedule"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
-func NewRenderCommand(ctx context.Context, templateFile string, srv schedule.ScheduleService) *cobra.Command {
+func NewRenderCommand(ctx context.Context, templateFilePath string, srv schedule.ScheduleService) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "apply",
-		Short: "Apply schedule",
+		Use:   "render",
+		Short: "Render schedule manifest",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
+			zap.L().Debug("template path", zap.String("templateFilePath", templateFilePath))
+			b, err := ioutil.ReadFile(templateFilePath)
+			if err != nil {
+				errors.WithStack(err)
+			}
+
+			templateFile := string(b)
+			zap.L().Debug("template file", zap.String("templateFile", templateFile))
+
 			rendered, err := srv.Render(ctx, templateFile, args[0], args[1])
 			if err != nil {
 				return errors.WithStack(err)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"html/template"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/repo"
@@ -30,6 +31,10 @@ func NewScheduleService(scheduleRepository repo.ScheduleRepository) ScheduleServ
 }
 
 func (s *scheduleServiceImpl) Render(ctx context.Context, templateFile string, schedule string, templateIssueURL string) (string, error) {
+	if valid := CheckSchedule(schedule); !valid {
+		return "", errors.New("schedule is not valid")
+	}
+
 	templateData := TemplateData{
 		Schedule: schedule,
 		Commands: []string{"issue-creator", "create", templateIssueURL},
@@ -59,4 +64,10 @@ func (s *scheduleServiceImpl) Apply(ctx context.Context, templateFile string, sc
 		return errors.Wrap(err, "Failed to apply manifest")
 	}
 	return nil
+}
+
+func CheckSchedule(schedule string) bool {
+	schedules := strings.Split(schedule, " ")
+
+	return len(schedules) == 5
 }
