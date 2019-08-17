@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"html/template"
+	"net/url"
 	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/repo"
+	"go.uber.org/zap"
 )
 
 type ScheduleService interface {
@@ -16,6 +18,7 @@ type ScheduleService interface {
 }
 
 type TemplateData struct {
+	Name     string
 	Schedule string
 	Commands []string
 }
@@ -35,7 +38,13 @@ func (s *scheduleServiceImpl) Render(ctx context.Context, templateFile string, s
 		return "", errors.New("schedule is not valid")
 	}
 
+	scheduleName, err := ConvertToName(templateIssueURL)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
 	templateData := TemplateData{
+		Name:     scheduleName,
 		Schedule: schedule,
 		Commands: []string{"issue-creator", "create", templateIssueURL},
 	}
@@ -70,4 +79,28 @@ func CheckSchedule(schedule string) bool {
 	schedules := strings.Split(schedule, " ")
 
 	return len(schedules) == 5
+}
+
+func ConvertToName(templateIssueURL string) (string, error) {
+	zap.L().Debug("templateIssueURL", zap.String("templateIssueURL", templateIssueURL))
+
+	p, err := url.Parse(templateIssueURL)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	path := p.Path
+	name := ""
+	for _, p := range strings.Split(path, "/") {
+		if len(p) == 0 {
+			continue
+		}
+		if len(name) == 0 {
+			name += p
+			continue
+		}
+		name += "-" + p
+	}
+
+	return name, nil
 }
