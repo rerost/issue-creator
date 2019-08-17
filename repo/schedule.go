@@ -41,15 +41,15 @@ func (s *scheduleRepositoryImpl) Apply(ctx context.Context, manifest string) err
 
 	commands = append(
 		commands,
-		"apply",
-		"-f",
 		manifestFile.Name(),
 	)
 
 	c := strings.Join(commands, " ")
 	zap.L().Debug("command", zap.String("config", c))
 
-	err = exec.CommandContext(ctx, "apply to k8s", commands...).Run()
+	cmd := exec.CommandContext(ctx, commands[0], commands[1:]...)
+	out, err := cmd.CombinedOutput()
+	zap.L().Debug("out", zap.String("out", string(out)))
 	if err != nil {
 		return errors.Wrap(err, "Failed to execute k8s command")
 	}

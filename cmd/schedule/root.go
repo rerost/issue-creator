@@ -15,11 +15,8 @@ func NewScheduleCommand(ctx context.Context, templateFile string, srv schedule.S
 
 	cmd.AddCommand(
 		NewRenderCommand(ctx, templateFile, srv),
-		NewApplyCommand(ctx, srv),
+		NewApplyCommand(ctx, templateFile, srv),
 	)
-
-	cmd.PersistentFlags().StringP("schedule", "s", "", "Schedule time(crontab)")
-	cmd.PersistentFlags().StringP("manifest_template", "i", "", "manifest template")
 
 	return cmd
 }
