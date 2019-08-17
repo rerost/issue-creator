@@ -47,7 +47,7 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 	zap.L().Debug("template", zap.String("Title", _templateIssue.Title))
 	zap.L().Debug("template", zap.String("Body", _templateIssue.Body))
 	titleTmpl, err := template.New("title").Funcs(map[string]interface{}{
-		"AddDate": func(d int) time.Time { return is.ct.AddDate(0, 0, d) },
+		"AddDateAndFormat": func(format string, d int) string { return is.ct.AddDate(0, 0, d).Format(format) },
 	}).Parse(_templateIssue.Title)
 	if err != nil {
 		return types.Issue{}, errors.Wrap(err, "Failed to parse title")
