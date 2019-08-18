@@ -1,6 +1,10 @@
 # issue-creator
 This is a CLI tool for automatically generating periodically created issues.
 
+e.g.
+- Template Issue: https://github.com/rerost/issue-creator/issues/1
+- Template Manifest: WIP
+
 ## Flow
 ![image](https://user-images.githubusercontent.com/5201588/63219703-a4848b00-c1b2-11e9-90a7-aa2a4920d47b.png)
 
