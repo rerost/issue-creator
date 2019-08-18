@@ -2,7 +2,7 @@
 This is a CLI tool for automatically generating periodically created issues.
 
 ## Flow
-![image](https://user-images.githubusercontent.com/5201588/63219612-68e8c180-c1b0-11e9-8466-39cf07470a08.png)
+![image](https://user-images.githubusercontent.com/5201588/63219703-a4848b00-c1b2-11e9-90a7-aa2a4920d47b.png)
 
 ## Install
 ```
