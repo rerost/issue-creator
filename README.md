@@ -18,8 +18,8 @@ $ issue-creator
 NOTE: please set `GithubAccessToken` for create issue, `K8sCommands` for schedule issue
 
 ```
-issue-creator render https://github.com/wantedly/issue-creator/issues/1
-issue-creator create https://github.com/wantedly/issue-creator/issues/1
-issue-creator schedule render '30 5 * * 1' https://github.com/wantedly/issue-creator/issues/1
-issue-creator schedule apply '30 5 * * 1' https://github.com/wantedly/issue-creator/issues/1
+issue-creator render https://github.com/rerost/issue-creator/issues/1
+issue-creator create https://github.com/rerost/issue-creator/issues/1
+issue-creator schedule render '30 5 * * 1' https://github.com/rerost/issue-creator/issues/1
+issue-creator schedule apply '30 5 * * 1' https://github.com/rerost/issue-creator/issues/1
 ```
