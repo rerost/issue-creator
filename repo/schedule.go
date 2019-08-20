@@ -27,7 +27,11 @@ func NewScheduleRepository(k8scommands []string) ScheduleRepository {
 
 func (s *scheduleRepositoryImpl) Apply(ctx context.Context, manifest string) error {
 	commands := s.k8scommands
-	manifestFile, err := ioutil.TempFile("", "schedule.yaml")
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return errors.Wrap(err, "Failed to get current dir")
+	}
+	manifestFile, err := ioutil.TempFile(currentDir, "schedule.yaml")
 	if err != nil {
 		return errors.Wrap(err, "Failed to create temp file")
 	}
