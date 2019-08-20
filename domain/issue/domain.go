@@ -88,7 +88,7 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 		Owner:        _templateIssue.Owner,
 		Repository:   _templateIssue.Repository,
 		Title:        title,
-		Body:         body + `\n _This issue created by https://github.com/rerost/issue-creator_`,
+		Body:         body + " \n\n _Created by https://github.com/rerost/issue-creator. Base issue is " + templateIssueURL + "_",
 		Labels:       _templateIssue.Labels,
 		LastIssueURL: *lastIssue.URL,
 	}
