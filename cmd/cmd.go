@@ -13,10 +13,12 @@ import (
 
 type Config struct {
 	GithubAccessToken    string
-	Verbose              bool
-	Debug                bool
 	ManifestTemplateFile string
 	K8sCommands          []string
+	CloseLastIssue       bool
+
+	Verbose bool
+	Debug   bool
 }
 
 func Run() error {
@@ -64,6 +66,7 @@ func NewConfig() (Config, error) {
 	pflag.StringP("GithubAccessToken", "", "", "Github Access Token")
 	pflag.StringP("ManifestTemplateFile", "", "./template.tpl", "k8s manifest file template path")
 	pflag.StringP("K8sCommands", "", "", "k8scommands for apply")
+	pflag.BoolP("CloseLastIssue", "c", false, "Close last issue")
 	pflag.BoolP("verbose", "v", false, "")
 	pflag.BoolP("debug", "d", false, "")
 

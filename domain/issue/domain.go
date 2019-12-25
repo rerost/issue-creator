@@ -25,14 +25,16 @@ type IssueService interface {
 }
 
 type issueServiceImpl struct {
-	ir repo.IssueRepository
-	ct time.Time
+	ir             repo.IssueRepository
+	ct             time.Time
+	closeLastIssue bool
 }
 
-func NewIssueService(issueRepository repo.IssueRepository, currentTime time.Time) IssueService {
+func NewIssueService(issueRepository repo.IssueRepository, currentTime time.Time, closeLastIssue bool) IssueService {
 	return &issueServiceImpl{
-		ir: issueRepository,
-		ct: currentTime,
+		ir:             issueRepository,
+		ct:             currentTime,
+		closeLastIssue: closeLastIssue,
 	}
 }
 
@@ -105,12 +107,21 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 		return types.Issue{}, errors.WithStack(err)
 	}
 
-	i, err = is.ir.Create(ctx, i)
+	created, err := is.ir.Create(ctx, i)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}
 
-	return i, nil
+	if !is.closeLastIssue {
+		return created, nil
+	}
+
+	_, err = is.ir.CloseByURL(ctx, i.LastIssueURL)
+	if err != nil {
+		return types.Issue{}, errors.WithStack(err)
+	}
+
+	return created, nil
 }
 
 func (is *issueServiceImpl) Render(ctx context.Context, templateURL string) (types.Issue, error) {

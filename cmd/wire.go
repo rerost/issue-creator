@@ -37,10 +37,18 @@ func NewTemplateFile(cfg Config) string {
 	return cfg.ManifestTemplateFile
 }
 
+func NewIssueService(cfg Config, issueRepo repo.IssueRepository, ct time.Time) issue.IssueService {
+	return issue.NewIssueService(
+		issueRepo,
+		ct,
+		cfg.CloseLastIssue,
+	)
+}
+
 func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
 	wire.Build(
 		NewCmdRoot,
-		issue.NewIssueService,
+		NewIssueService,
 		repo.NewIssueRepository,
 		CurrentTime,
 		NewGithubClient,
