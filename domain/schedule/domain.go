@@ -24,12 +24,14 @@ type TemplateData struct {
 }
 
 type scheduleServiceImpl struct {
-	sr repo.ScheduleRepository
+	sr             repo.ScheduleRepository
+	closeLastIssue bool
 }
 
-func NewScheduleService(scheduleRepository repo.ScheduleRepository) ScheduleService {
+func NewScheduleService(scheduleRepository repo.ScheduleRepository, closeLastIssue bool) ScheduleService {
 	return &scheduleServiceImpl{
-		sr: scheduleRepository,
+		sr:             scheduleRepository,
+		closeLastIssue: closeLastIssue,
 	}
 }
 
@@ -43,10 +45,15 @@ func (s *scheduleServiceImpl) Render(ctx context.Context, templateFile string, s
 		return "", errors.WithStack(err)
 	}
 
+	commands := []string{"issue-creator", "create", templateIssueURL}
+	if s.closeLastIssue {
+		commands = append(commands, "--CloseLastIssue")
+	}
+
 	templateData := TemplateData{
 		Name:     scheduleName,
 		Schedule: schedule,
-		Commands: []string{"issue-creator", "create", templateIssueURL},
+		Commands: commands,
 	}
 
 	manifestTpl, err := template.New("manifest").Parse(templateFile)

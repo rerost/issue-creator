@@ -25,7 +25,7 @@ func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
 	issueService := NewIssueService(cfg, issueRepository, time)
 	v := NewK8sCommand(cfg)
 	scheduleRepository := repo.NewScheduleRepository(v)
-	scheduleService := schedule.NewScheduleService(scheduleRepository)
+	scheduleService := NewScheduleService(cfg, scheduleRepository)
 	string2 := NewTemplateFile(cfg)
 	command := NewCmdRoot(ctx, issueService, scheduleService, string2)
 	return command, nil
@@ -61,4 +61,8 @@ func NewIssueService(cfg Config, issueRepo repo.IssueRepository, ct time.Time) i
 		ct,
 		cfg.CloseLastIssue,
 	)
+}
+
+func NewScheduleService(cfg Config, scheduleRepository repo.ScheduleRepository) schedule.ScheduleService {
+	return schedule.NewScheduleService(scheduleRepository, cfg.CloseLastIssue)
 }

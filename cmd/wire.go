@@ -44,6 +44,9 @@ func NewIssueService(cfg Config, issueRepo repo.IssueRepository, ct time.Time) i
 		cfg.CloseLastIssue,
 	)
 }
+func NewScheduleService(cfg Config, scheduleRepository repo.ScheduleRepository) schedule.ScheduleService {
+	return schedule.NewScheduleService(scheduleRepository, cfg.CloseLastIssue)
+}
 
 func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
 	wire.Build(
@@ -52,7 +55,7 @@ func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
 		repo.NewIssueRepository,
 		CurrentTime,
 		NewGithubClient,
-		schedule.NewScheduleService,
+		NewScheduleService,
 		repo.NewScheduleRepository,
 		NewK8sCommand,
 		NewTemplateFile,
