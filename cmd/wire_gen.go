@@ -22,10 +22,10 @@ func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
 	client := NewGithubClient(ctx, cfg)
 	issueRepository := repo.NewIssueRepository(client)
 	time := CurrentTime(cfg)
-	issueService := issue.NewIssueService(issueRepository, time)
+	issueService := NewIssueService(cfg, issueRepository, time)
 	v := NewK8sCommand(cfg)
 	scheduleRepository := repo.NewScheduleRepository(v)
-	scheduleService := schedule.NewScheduleService(scheduleRepository)
+	scheduleService := NewScheduleService(cfg, scheduleRepository)
 	string2 := NewTemplateFile(cfg)
 	command := NewCmdRoot(ctx, issueService, scheduleService, string2)
 	return command, nil
@@ -53,4 +53,16 @@ func NewK8sCommand(cfg Config) []string {
 
 func NewTemplateFile(cfg Config) string {
 	return cfg.ManifestTemplateFile
+}
+
+func NewIssueService(cfg Config, issueRepo repo.IssueRepository, ct time.Time) issue.IssueService {
+	return issue.NewIssueService(
+		issueRepo,
+		ct,
+		cfg.CloseLastIssue,
+	)
+}
+
+func NewScheduleService(cfg Config, scheduleRepository repo.ScheduleRepository) schedule.ScheduleService {
+	return schedule.NewScheduleService(scheduleRepository, cfg.CloseLastIssue)
 }
