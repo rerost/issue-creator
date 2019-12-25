@@ -20,6 +20,7 @@ NOTE: please set `GithubAccessToken` for create issue, `K8sCommands` for schedul
 ```
 issue-creator render https://github.com/rerost/issue-creator/issues/1
 issue-creator create https://github.com/rerost/issue-creator/issues/1
+issue-creator create https://github.com/rerost/issue-creator/issues/1 --CloseLastIssue
 issue-creator schedule render '30 5 * * 1' https://github.com/rerost/issue-creator/issues/1
 issue-creator schedule apply '30 5 * * 1' https://github.com/rerost/issue-creator/issues/1
 ```
