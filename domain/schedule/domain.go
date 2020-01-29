@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/Masterminds/sprig"
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/repo"
 	"go.uber.org/zap"
@@ -56,7 +57,7 @@ func (s *scheduleServiceImpl) Render(ctx context.Context, templateFile string, s
 		Commands: commands,
 	}
 
-	manifestTpl, err := template.New("manifest").Parse(templateFile)
+	manifestTpl, err := template.New("manifest").Funcs(sprig.FuncMap()).Parse(templateFile)
 	if err != nil {
 		return "", errors.Wrap(err, "Failed to parse manifest template")
 	}
