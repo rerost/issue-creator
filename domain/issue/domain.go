@@ -54,7 +54,9 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 	if err != nil {
 		return types.Issue{}, errors.Wrap(err, "Failed to parse title")
 	}
-	bodyTmpl, err := template.New("body").Parse(_templateIssue.Body)
+	bodyTmpl, err := template.New("body").Funcs(map[string]interface{}{
+		"AddDateAndFormat": func(format string, d int) string { return is.ct.AddDate(0, 0, d).Format(format) },
+	}).Parse(_templateIssue.Body)
 	if err != nil {
 		return types.Issue{}, errors.Wrap(err, "Failed to parse body")
 	}
