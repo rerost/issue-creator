@@ -62,7 +62,7 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 	}
 
 	if len(_templateIssue.Labels) == 0 {
-		return types.Issue{}, errors.Wrap(err, "Requires at least one label")
+		return types.Issue{}, errors.New("Requires at least one label")
 	}
 
 	lastIssue, err := is.ir.FindLastIssueByLabel(ctx, _templateIssue)
