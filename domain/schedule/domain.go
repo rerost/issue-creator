@@ -3,7 +3,6 @@ package schedule
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"html/template"
 	"net/url"
 	"strings"
@@ -26,16 +25,14 @@ type TemplateData struct {
 }
 
 type scheduleServiceImpl struct {
-	sr                     repo.ScheduleRepository
-	closeLastIssue         bool
-	checkBeforeCreateIssue *string
+	sr             repo.ScheduleRepository
+	closeLastIssue bool
 }
 
-func NewScheduleService(scheduleRepository repo.ScheduleRepository, closeLastIssue bool, checkBeforeCreateIssue *string) ScheduleService {
+func NewScheduleService(scheduleRepository repo.ScheduleRepository, closeLastIssue bool) ScheduleService {
 	return &scheduleServiceImpl{
-		sr:                     scheduleRepository,
-		closeLastIssue:         closeLastIssue,
-		checkBeforeCreateIssue: checkBeforeCreateIssue,
+		sr:             scheduleRepository,
+		closeLastIssue: closeLastIssue,
 	}
 }
 
@@ -52,10 +49,6 @@ func (s *scheduleServiceImpl) Render(ctx context.Context, templateFile string, s
 	commands := []string{"issue-creator", "create", templateIssueURL}
 	if s.closeLastIssue {
 		commands = append(commands, "--CloseLastIssue")
-	}
-
-	if s.checkBeforeCreateIssue != nil {
-		commands = append(commands, fmt.Sprintf("--check-before-create-issue=%s", *s.checkBeforeCreateIssue))
 	}
 
 	templateData := TemplateData{

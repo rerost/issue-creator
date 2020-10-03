@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
-	"os/exec"
 	"text/template"
 	"time"
 
@@ -27,18 +25,16 @@ type IssueService interface {
 }
 
 type issueServiceImpl struct {
-	ir                     repo.IssueRepository
-	ct                     time.Time
-	closeLastIssue         bool
-	checkBeforeCreateIssue *string
+	ir             repo.IssueRepository
+	ct             time.Time
+	closeLastIssue bool
 }
 
-func NewIssueService(issueRepository repo.IssueRepository, currentTime time.Time, closeLastIssue bool, checkBeforeCreateIssue *string) IssueService {
+func NewIssueService(issueRepository repo.IssueRepository, currentTime time.Time, closeLastIssue bool) IssueService {
 	return &issueServiceImpl{
-		ir:                     issueRepository,
-		ct:                     currentTime,
-		closeLastIssue:         closeLastIssue,
-		checkBeforeCreateIssue: checkBeforeCreateIssue,
+		ir:             issueRepository,
+		ct:             currentTime,
+		closeLastIssue: closeLastIssue,
 	}
 }
 
@@ -111,26 +107,6 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 	i, err := is.render(ctx, templateURL)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
-	}
-
-	if is.checkBeforeCreateIssue != nil {
-		f, err := ioutil.TempFile("", "issue_creator_*.sh")
-		if err != nil {
-			return types.Issue{}, errors.WithStack(err)
-		}
-
-		_, err = f.WriteString(*is.checkBeforeCreateIssue)
-		if err != nil {
-			return types.Issue{}, errors.WithStack(err)
-		}
-		f.Chmod(0755)
-		f.Close()
-
-		out, err := exec.Command("bash", f.Name()).Output()
-		if err != nil {
-			zap.L().Error("Failed to exec check before create issue", zap.String("out", string(out)), zap.String("err", err.Error()))
-			return types.Issue{}, errors.WithStack(err)
-		}
 	}
 
 	created, err := is.ir.Create(ctx, i)
