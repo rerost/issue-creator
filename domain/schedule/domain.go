@@ -58,10 +58,6 @@ func (s *scheduleServiceImpl) Render(ctx context.Context, templateFile string, s
 		commands = append(commands, fmt.Sprintf("--check-before-create-issue=%s", *s.checkBeforeCreateIssue))
 	}
 
-	if s.checkBeforeCreateIssue != nil && *s.checkBeforeCreateIssue != "" {
-		commands = append(commands, fmt.Sprintf("--check-before-create-issue=%s", *s.checkBeforeCreateIssue))
-	}
-
 	rawCommands := make([]template.HTML, len(commands))
 	for i, cmd := range commands {
 		rawCommands[i] = template.HTML(cmd)
