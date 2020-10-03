@@ -54,7 +54,7 @@ func (s *scheduleServiceImpl) Render(ctx context.Context, templateFile string, s
 		commands = append(commands, "--CloseLastIssue")
 	}
 
-	if s.checkBeforeCreateIssue != nil {
+	if s.checkBeforeCreateIssue != nil && *s.checkBeforeCreateIssue != "" {
 		commands = append(commands, fmt.Sprintf("--check-before-create-issue=%s", *s.checkBeforeCreateIssue))
 	}
 

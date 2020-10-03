@@ -113,7 +113,7 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 		return types.Issue{}, errors.WithStack(err)
 	}
 
-	if is.checkBeforeCreateIssue != nil {
+	if is.checkBeforeCreateIssue != nil && *is.checkBeforeCreateIssue != "" {
 		f, err := ioutil.TempFile("", "issue_creator_*.sh")
 		if err != nil {
 			return types.Issue{}, errors.WithStack(err)
