@@ -22,7 +22,7 @@ type ScheduleService interface {
 type TemplateData struct {
 	Name     string
 	Schedule string
-	Commands []string
+	Commands []template.HTML
 }
 
 type scheduleServiceImpl struct {
@@ -58,10 +58,19 @@ func (s *scheduleServiceImpl) Render(ctx context.Context, templateFile string, s
 		commands = append(commands, fmt.Sprintf("--check-before-create-issue=%s", *s.checkBeforeCreateIssue))
 	}
 
+	if s.checkBeforeCreateIssue != nil && *s.checkBeforeCreateIssue != "" {
+		commands = append(commands, fmt.Sprintf("--check-before-create-issue=%s", *s.checkBeforeCreateIssue))
+	}
+
+	rawCommands := make([]template.HTML, len(commands))
+	for i, cmd := range commands {
+		rawCommands[i] = template.HTML(cmd)
+	}
+
 	templateData := TemplateData{
 		Name:     scheduleName,
 		Schedule: schedule,
-		Commands: commands,
+		Commands: rawCommands,
 	}
 
 	manifestTpl, err := template.New("manifest").Funcs(sprig.FuncMap()).Parse(templateFile)
