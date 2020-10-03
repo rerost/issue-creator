@@ -42,10 +42,11 @@ func NewIssueService(cfg Config, issueRepo repo.IssueRepository, ct time.Time) i
 		issueRepo,
 		ct,
 		cfg.CloseLastIssue,
+		cfg.CheckBeforeCreateIssue,
 	)
 }
 func NewScheduleService(cfg Config, scheduleRepository repo.ScheduleRepository) schedule.ScheduleService {
-	return schedule.NewScheduleService(scheduleRepository, cfg.CloseLastIssue)
+	return schedule.NewScheduleService(scheduleRepository, cfg.CloseLastIssue, cfg.CheckBeforeCreateIssue)
 }
 
 func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
