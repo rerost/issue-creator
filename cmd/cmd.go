@@ -12,11 +12,10 @@ import (
 )
 
 type Config struct {
-	GithubAccessToken      string
-	ManifestTemplateFile   string
-	K8sCommands            []string
-	CloseLastIssue         bool
-	CheckBeforeCreateIssue *string `mapstructure:"check-before-create-issue"`
+	GithubAccessToken    string
+	ManifestTemplateFile string
+	K8sCommands          []string
+	CloseLastIssue       bool
 
 	Verbose bool
 	Debug   bool
@@ -70,7 +69,6 @@ func NewConfig() (Config, error) {
 	pflag.BoolP("CloseLastIssue", "c", false, "Close last issue")
 	pflag.BoolP("verbose", "v", false, "")
 	pflag.BoolP("debug", "d", false, "")
-	pflag.StringP("check-before-create-issue", "", "", "")
 
 	viper.AutomaticEnv()
 	viper.BindPFlags(pflag.CommandLine)
