@@ -3,6 +3,7 @@ package schedule
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"html/template"
 	"net/url"
 	"strings"
@@ -21,18 +22,20 @@ type ScheduleService interface {
 type TemplateData struct {
 	Name     string
 	Schedule string
-	Commands []string
+	Commands []template.HTML
 }
 
 type scheduleServiceImpl struct {
-	sr             repo.ScheduleRepository
-	closeLastIssue bool
+	sr                     repo.ScheduleRepository
+	closeLastIssue         bool
+	checkBeforeCreateIssue *string
 }
 
-func NewScheduleService(scheduleRepository repo.ScheduleRepository, closeLastIssue bool) ScheduleService {
+func NewScheduleService(scheduleRepository repo.ScheduleRepository, closeLastIssue bool, checkBeforeCreateIssue *string) ScheduleService {
 	return &scheduleServiceImpl{
-		sr:             scheduleRepository,
-		closeLastIssue: closeLastIssue,
+		sr:                     scheduleRepository,
+		closeLastIssue:         closeLastIssue,
+		checkBeforeCreateIssue: checkBeforeCreateIssue,
 	}
 }
 
@@ -51,10 +54,19 @@ func (s *scheduleServiceImpl) Render(ctx context.Context, templateFile string, s
 		commands = append(commands, "--CloseLastIssue")
 	}
 
+	if s.checkBeforeCreateIssue != nil && *s.checkBeforeCreateIssue != "" {
+		commands = append(commands, fmt.Sprintf("--check-before-create-issue=%s", *s.checkBeforeCreateIssue))
+	}
+
+	rawCommands := make([]template.HTML, len(commands))
+	for i, cmd := range commands {
+		rawCommands[i] = template.HTML(cmd)
+	}
+
 	templateData := TemplateData{
 		Name:     scheduleName,
 		Schedule: schedule,
-		Commands: commands,
+		Commands: rawCommands,
 	}
 
 	manifestTpl, err := template.New("manifest").Funcs(sprig.FuncMap()).Parse(templateFile)
