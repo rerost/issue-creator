@@ -22,7 +22,7 @@ jobs:
       run: |
         go get -v -t -d ./...
     - name: Build issue-creator
-      run: go build ./cmd/issue-creator
+      run: go build .
   check_generate:
     name: Check generate
     runs-on: ubuntu-latest
