@@ -4,7 +4,7 @@ before:
   hooks:
     - go mod download
 builds:
-  - main: issue-creator
+  - main: .
     id: "issue-creator"
     binary: issue-creator
     env:
