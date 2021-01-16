@@ -13,18 +13,12 @@ inputs:
   token:
     default: ${{ github.token }}
 runs:
-  using: "composite"
-  steps: 
-    - run: |
-        curl http://github.com/rerost/giro/releases/latest
-        mkdir .tmp_issue_creator
-        cd .tmp_issue_creator
-        export GO111MODULE=on
-        go get github.com/rerost/issue-creator
-        export PATH=$PATH:$(go env GOPATH)/bin
-        export GITHUBACCESSTOKEN=${{ inputs.token }}
-        issue-creator create \
-          --close-last-issue=${{ inputs.close-last-issue }} \
-          --check-before-create-issue=${{ inputs.check-before-create-issue }} \
-          ${{ inputs.template-issue-url }}
-      shell: bash
+  using: "docker"
+  image: 'Dockerfile'
+  args:
+    - issue-creator
+    - create
+    - ${{ inputs.template-issue-url }}
+    - --CloseLastIssue=${{ inputs.close-last-issue }}
+    - --check-before-create-issue=${{ inputs.check-before-create-issue }}
+    - --GithubAccessToken=${{ inputs.token }}
