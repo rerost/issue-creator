@@ -1,5 +1,5 @@
 name: "Check actions work"
-on: [push]
+on: workflow_dispatch
 
 jobs:
   create-issue:
