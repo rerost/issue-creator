@@ -6,6 +6,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: .
+      - uses: ./
         with:
           template-issue-url: https://github.com/rerost/issue-creator/issues/1
