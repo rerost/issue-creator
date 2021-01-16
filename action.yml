@@ -18,7 +18,7 @@ runs:
   args:
     - issue-creator
     - create
-    - https://github.com/{{ github.repository }}/${{ inputs.template-issue }}
+    - https://github.com/${{ github.repository }}/${{ inputs.template-issue }}
     - --CloseLastIssue=${{ inputs.close-last-issue }}
     - --check-before-create-issue=${{ inputs.check-before-create-issue }}
     - --GithubAccessToken=${{ inputs.token }}
