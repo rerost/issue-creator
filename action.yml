@@ -1,0 +1,30 @@
+name: 'issue-creator'
+description: 'Periodically create GitHub issue'
+inputs:
+  template-issue-url:
+    description: 'e.g. https://github.com/rerost/issue-creator/issues/1'
+    required: true
+  close-last-issue:
+    description: 'close prev issue or not'
+    default: "false"
+  check-before-create-issue:
+    description: 'shell script'
+    default: "echo 'OK'"
+  token:
+    default: ${{ github.token }}
+runs:
+  using: "composite"
+  steps: 
+    - run: |
+        curl http://github.com/rerost/giro/releases/latest
+        mkdir .tmp_issue_creator
+        cd .tmp_issue_creator
+        export GO111MODULE=on
+        go get github.com/rerost/issue-creator
+        export PATH=$PATH:$(go env GOPATH)/bin
+        export GITHUBACCESSTOKEN=${{ inputs.token }}
+        issue-creator create \
+          --close-last-issue=${{ inputs.close-last-issue }} \
+          --check-before-create-issue=${{ inputs.check-before-create-issue }} \
+          ${{ inputs.template-issue-url }}
+      shell: bash
