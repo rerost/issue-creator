@@ -1,0 +1,24 @@
+name: 'issue-creator'
+description: 'Periodically create GitHub issue'
+inputs:
+  template-issue-url:
+    description: 'e.g. https://github.com/rerost/issue-creator/issues/1'
+    required: true
+  close-last-issue:
+    description: 'close prev issue or not'
+    default: "false"
+  check-before-create-issue:
+    description: 'shell script'
+    default: "echo 'OK'"
+  token:
+    default: ${{ github.token }}
+runs:
+  using: "docker"
+  image: 'Dockerfile'
+  args:
+    - issue-creator
+    - create
+    - ${{ inputs.template-issue-url }}
+    - --CloseLastIssue=${{ inputs.close-last-issue }}
+    - --check-before-create-issue=${{ inputs.check-before-create-issue }}
+    - --GithubAccessToken=${{ inputs.token }}
