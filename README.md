@@ -25,3 +25,20 @@ issue-creator schedule render '30 5 * * 1' https://github.com/rerost/issue-creat
 issue-creator schedule apply '30 5 * * 1' https://github.com/rerost/issue-creator/issues/1
 issue-creator schedule apply '30 5 * * 1' https://github.com/rerost/issue-creator/issues/1 --CloseLastIssue
 ```
+
+## Use from GitHub Actions
+Example
+```
+on:
+  schedule:
+    - cron: "0 0 * * MON"
+  workflow_dispatch: {}
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: rerost/issue-creator@v0.1.6
+        with:
+          template-issue: 1 # https://github.com/rerost/issue-creator/issues/1
+```
