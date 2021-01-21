@@ -2,10 +2,10 @@ name: 'issue-creator'
 description: 'Periodically create GitHub issue'
 inputs:
   template-issue:
-    description: 'template issue number, e.g.1.  https://github.com/rerost/issue-creator/issues/1'
+    description: 'Specify the issue number of the template in the repository. e.g. 1'
     required: true
   close-last-issue:
-    description: 'close prev issue or not'
+    description: 'If true, issue-creator closes the previous issue.'
     default: true
   check-before-create-issue:
     description: 'shell script'
