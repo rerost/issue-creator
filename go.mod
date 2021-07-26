@@ -6,9 +6,7 @@ require (
 	github.com/Masterminds/goutils v1.1.0 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/sprig v2.22.0+incompatible
-	github.com/google/go-cmp v0.3.0 // indirect
-	github.com/google/go-github v17.0.0+incompatible
-	github.com/google/go-querystring v1.0.0 // indirect
+	github.com/google/go-github/v37 v37.0.0
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/google/wire v0.3.0
 	github.com/huandu/xstrings v1.3.0 // indirect
