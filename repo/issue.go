@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v37/github"
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/types"
 	"go.uber.org/zap"
@@ -174,9 +174,12 @@ func parseIssueURL(u string) (issueURLData, error) {
 	}, nil
 }
 
-func pluckName(gl []github.Label) []string {
+func pluckName(gl []*github.Label) []string {
 	res := []string{}
 	for _, l := range gl {
+		if l == nil {
+			continue
+		}
 		res = append(res, *l.Name) // I believe name is not null
 	}
 

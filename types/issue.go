@@ -1,8 +1,6 @@
 package types
 
-import (
-	"github.com/google/go-github/github"
-)
+import "github.com/google/go-github/v37/github"
 
 type Issue struct {
 	Owner      string
@@ -15,10 +13,13 @@ type Issue struct {
 	LastIssueURL string
 }
 
-func FromGithubLabels(labels []github.Label) []string {
-	ls := make([]string, len(labels))
-	for index, label := range labels {
-		ls[index] = label.GetName()
+func FromGithubLabels(labels []*github.Label) []string {
+	ls := make([]string, 0, len(labels))
+	for _, label := range labels {
+		if label == nil {
+			continue
+		}
+		ls = append(ls, label.GetName())
 	}
 	return ls
 }
