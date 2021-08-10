@@ -11,6 +11,7 @@ import (
 	"github.com/rerost/issue-creator/domain/issue"
 	"github.com/rerost/issue-creator/domain/schedule"
 	"github.com/rerost/issue-creator/repo"
+	"github.com/shurcooL/githubv4"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 )
@@ -29,6 +30,16 @@ func NewGithubClient(ctx context.Context, cfg Config) *github.Client {
 	return c
 }
 
+func NewGithubGraphqlClient(ctx context.Context, cfg Config) *githubv4.Client {
+	src := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: cfg.GithubAccessToken},
+	)
+	httpClient := oauth2.NewClient(ctx, src)
+
+	c := githubv4.NewClient(httpClient)
+	return c
+}
+
 func NewK8sCommand(cfg Config) []string {
 	return cfg.K8sCommands
 }
@@ -37,12 +48,14 @@ func NewTemplateFile(cfg Config) string {
 	return cfg.ManifestTemplateFile
 }
 
-func NewIssueService(cfg Config, issueRepo repo.IssueRepository, ct time.Time) issue.IssueService {
+func NewIssueService(cfg Config, issueRepo repo.IssueRepository, discussRepo repo.DiscussionRepository, ct time.Time) issue.IssueService {
 	return issue.NewIssueService(
 		issueRepo,
+		discussRepo,
 		ct,
 		cfg.CloseLastIssue,
 		cfg.CheckBeforeCreateIssue,
+		cfg.Discussion,
 	)
 }
 func NewScheduleService(cfg Config, scheduleRepository repo.ScheduleRepository) schedule.ScheduleService {
@@ -54,8 +67,10 @@ func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
 		NewCmdRoot,
 		NewIssueService,
 		repo.NewIssueRepository,
+		repo.NewDiscussionRepository,
 		CurrentTime,
 		NewGithubClient,
+		NewGithubGraphqlClient,
 		NewScheduleService,
 		repo.NewScheduleRepository,
 		NewK8sCommand,
