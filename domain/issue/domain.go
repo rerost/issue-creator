@@ -28,26 +28,40 @@ type IssueService interface {
 
 type issueServiceImpl struct {
 	ir                     repo.IssueRepository
+	dr                     repo.DiscussionRepository
 	ct                     time.Time
 	closeLastIssue         bool
 	checkBeforeCreateIssue *string
+	isDiscussion           bool
 }
 
-func NewIssueService(issueRepository repo.IssueRepository, currentTime time.Time, closeLastIssue bool, checkBeforeCreateIssue *string) IssueService {
+func NewIssueService(issueRepository repo.IssueRepository, discussionRepository repo.DiscussionRepository, currentTime time.Time, closeLastIssue bool, checkBeforeCreateIssue *string, isDiscussion bool) IssueService {
 	return &issueServiceImpl{
 		ir:                     issueRepository,
+		dr:                     discussionRepository,
 		ct:                     currentTime,
 		closeLastIssue:         closeLastIssue,
 		checkBeforeCreateIssue: checkBeforeCreateIssue,
+		isDiscussion:           isDiscussion,
 	}
 }
 
 // Render return not saved issue
 func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string) (types.Issue, error) {
 	zap.L().Debug("templateIssueURL", zap.String("templateIssueURL", templateIssueURL))
-	_templateIssue, err := is.ir.FindByURL(ctx, templateIssueURL)
-	if err != nil {
-		return types.Issue{}, errors.WithStack(err)
+	var _templateIssue types.Issue
+	if is.isDiscussion {
+		ti, err := is.dr.FindByURL(ctx, templateIssueURL)
+		if err != nil {
+			return types.Issue{}, errors.WithStack(err)
+		}
+		_templateIssue = ti
+	} else {
+		ti, err := is.ir.FindByURL(ctx, templateIssueURL)
+		if err != nil {
+			return types.Issue{}, errors.WithStack(err)
+		}
+		_templateIssue = ti
 	}
 
 	zap.L().Debug("template", zap.String("Title", _templateIssue.Title))
