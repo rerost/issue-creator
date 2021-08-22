@@ -75,7 +75,6 @@ func NewIssueService(cfg Config, issueRepo repo.IssueRepository, discussRepo rep
 		ct,
 		cfg.CloseLastIssue,
 		cfg.CheckBeforeCreateIssue,
-		cfg.Discussion,
 	)
 }
 

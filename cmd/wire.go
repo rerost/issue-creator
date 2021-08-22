@@ -55,7 +55,6 @@ func NewIssueService(cfg Config, issueRepo repo.IssueRepository, discussRepo rep
 		ct,
 		cfg.CloseLastIssue,
 		cfg.CheckBeforeCreateIssue,
-		cfg.Discussion,
 	)
 }
 func NewScheduleService(cfg Config, scheduleRepository repo.ScheduleRepository) schedule.ScheduleService {
