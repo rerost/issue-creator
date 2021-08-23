@@ -200,5 +200,17 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 		return types.Issue{}, errors.WithStack(err)
 	}
 
-	return types.Issue{}, nil
+	ls := make([]string, 0, len(m.UpdateDiscussion.Labels.Nodes))
+	for _, label := range m.UpdateDiscussion.Labels.Nodes {
+		ls = append(ls, string(label.Name))
+	}
+	url := string(m.UpdateDiscussion.Url)
+	return types.Issue{
+		Owner:      discussionData.Owner,
+		Repository: discussionData.Repository,
+		Title:      string(m.UpdateDiscussion.Title),
+		Body:       string(m.UpdateDiscussion.Body),
+		Labels:     ls,
+		URL:        &url,
+	}, nil
 }
