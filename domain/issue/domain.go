@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/url"
 	"os/exec"
@@ -80,13 +81,21 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 		return types.Issue{}, errors.Wrap(err, "Failed to parse body")
 	}
 
-	if len(_templateIssue.Labels) == 0 {
+	if !isDiscussion && len(_templateIssue.Labels) == 0 {
 		return types.Issue{}, errors.New("Requires at least one label")
 	}
 
 	var lastIssue types.Issue
 	if isDiscussion {
 		lastIssue, err = is.dr.FindLastIssueByLabel(ctx, _templateIssue)
+		fmt.Println("-------------------------------------")
+		fmt.Println(errors.Cause(err).Error())
+		fmt.Println("-------------------------------------")
+		if errors.Cause(err).Error() == repo.LastDiscussionNotFound {
+			url := "Last Issue is not found"
+			lastIssue = types.Issue{URL: &url}
+			err = nil
+		}
 	} else {
 		lastIssue, err = is.ir.FindLastIssueByLabel(ctx, _templateIssue)
 	}

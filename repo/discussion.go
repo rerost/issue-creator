@@ -10,6 +10,8 @@ import (
 	"github.com/shurcooL/githubv4"
 )
 
+const LastDiscussionNotFound = "Not Found"
+
 type DiscussionRepository interface {
 	Create(ctx context.Context, issue types.Issue) (types.Issue, error)
 	FindByURL(ctx context.Context, issueURL string) (types.Issue, error)
@@ -115,7 +117,7 @@ func (r *discussionRepositoryImpl) FindLastIssueByLabel(ctx context.Context, iss
 		return types.Issue{}, errors.WithStack(err)
 	}
 	if len(q.Search.Nodes) == 0 {
-		return issue, errors.New("Not found last issue")
+		return issue, errors.New(LastDiscussionNotFound)
 	}
 
 	lastDiscussion := q.Search.Nodes[0].Discussion
