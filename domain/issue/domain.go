@@ -153,7 +153,13 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 		}
 	}
 
-	created, err := is.ir.Create(ctx, i)
+	isDiscussion := isDiscussion(templateURL)
+	var created types.Issue
+	if isDiscussion {
+		created, err = is.dr.Create(ctx, i)
+	} else {
+		created, err = is.ir.Create(ctx, i)
+	}
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}
@@ -162,7 +168,11 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 		return created, nil
 	}
 
-	_, err = is.ir.CloseByURL(ctx, i.LastIssueURL)
+	if isDiscussion {
+		_, err = is.dr.CloseByURL(ctx, i.LastIssueURL)
+	} else {
+		_, err = is.ir.CloseByURL(ctx, i.LastIssueURL)
+	}
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}
