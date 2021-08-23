@@ -49,7 +49,6 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 				}
 				Labels struct {
 					Nodes []struct {
-						Id   githubv4.String
 						Name githubv4.String
 					}
 				} `graphql:"labels(first: 10)"`
@@ -68,13 +67,19 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 		return types.Issue{}, errors.WithStack(err)
 	}
 
+	ls := make([]string, 0, len(q.Repository.Discussion.Labels.Nodes))
+	for _, label := range q.Repository.Discussion.Labels.Nodes {
+		ls = append(ls, string(label.Name))
+	}
+
 	return types.Issue{
 		Owner:      discussionData.Owner,
 		Repository: discussionData.Repository,
 
-		Title: string(q.Repository.Discussion.Title),
-		Body:  string(q.Repository.Discussion.Body),
-		URL:   (*string)(&q.Repository.Discussion.Url),
+		Title:  string(q.Repository.Discussion.Title),
+		Body:   string(q.Repository.Discussion.Body),
+		Labels: ls,
+		URL:    (*string)(&q.Repository.Discussion.Url),
 	}, nil
 }
 
