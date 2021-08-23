@@ -5,7 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
+	"net/url"
 	"os/exec"
+	"strings"
 	"text/template"
 	"time"
 
@@ -32,17 +34,15 @@ type issueServiceImpl struct {
 	ct                     time.Time
 	closeLastIssue         bool
 	checkBeforeCreateIssue *string
-	isDiscussion           bool
 }
 
-func NewIssueService(issueRepository repo.IssueRepository, discussionRepository repo.DiscussionRepository, currentTime time.Time, closeLastIssue bool, checkBeforeCreateIssue *string, isDiscussion bool) IssueService {
+func NewIssueService(issueRepository repo.IssueRepository, discussionRepository repo.DiscussionRepository, currentTime time.Time, closeLastIssue bool, checkBeforeCreateIssue *string) IssueService {
 	return &issueServiceImpl{
 		ir:                     issueRepository,
 		dr:                     discussionRepository,
 		ct:                     currentTime,
 		closeLastIssue:         closeLastIssue,
 		checkBeforeCreateIssue: checkBeforeCreateIssue,
-		isDiscussion:           isDiscussion,
 	}
 }
 
@@ -50,7 +50,8 @@ func NewIssueService(issueRepository repo.IssueRepository, discussionRepository 
 func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string) (types.Issue, error) {
 	zap.L().Debug("templateIssueURL", zap.String("templateIssueURL", templateIssueURL))
 	var _templateIssue types.Issue
-	if is.isDiscussion {
+	isDiscussion := isDiscussion(templateIssueURL)
+	if isDiscussion {
 		ti, err := is.dr.FindByURL(ctx, templateIssueURL)
 		if err != nil {
 			return types.Issue{}, errors.WithStack(err)
@@ -83,7 +84,12 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 		return types.Issue{}, errors.New("Requires at least one label")
 	}
 
-	lastIssue, err := is.ir.FindLastIssueByLabel(ctx, _templateIssue)
+	var lastIssue types.Issue
+	if isDiscussion {
+		lastIssue, err = is.dr.FindLastIssueByLabel(ctx, _templateIssue)
+	} else {
+		lastIssue, err = is.ir.FindLastIssueByLabel(ctx, _templateIssue)
+	}
 	if err != nil {
 		return types.Issue{}, errors.Wrap(err, "Failed to get last issue")
 	}
@@ -166,4 +172,22 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 
 func (is *issueServiceImpl) Render(ctx context.Context, templateURL string) (types.Issue, error) {
 	return is.render(ctx, templateURL)
+}
+
+func isDiscussion(templateIssueURL string) bool {
+	pu, err := url.Parse(templateIssueURL)
+	if err != nil {
+		zap.L().Debug("error", zap.String("url parse err", err.Error()))
+		return false
+	}
+
+	path := pu.Path
+	s := strings.Split(path, "/")
+	zap.L().Debug("", zap.String("path", path))
+	// Expect: /:owner/:repository/[discussions|issues]/:number
+	if len(s) != 5 {
+		zap.L().Debug("error", zap.Int("path length", len(s)))
+		return false
+	}
+	return "discussions" == s[3]
 }
