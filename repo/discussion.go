@@ -36,6 +36,7 @@ type (
 		Url      githubv4.String
 		Title    githubv4.String
 		Category struct {
+			Id   githubv4.ID
 			Name githubv4.String
 		}
 		Labels struct {
@@ -80,6 +81,10 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 		ls = append(ls, string(label.Name))
 	}
 
+	meta := map[string]string{
+		"categoryId": fmt.Sprintf("%+v", q.Repository.Discussion.Category.Id),
+	}
+
 	return types.Issue{
 		Owner:      discussionData.Owner,
 		Repository: discussionData.Repository,
@@ -88,6 +93,7 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 		Body:   string(q.Repository.Discussion.Body),
 		Labels: ls,
 		URL:    (*string)(&q.Repository.Discussion.Url),
+		Meta:   &meta,
 	}, nil
 }
 
@@ -132,14 +138,17 @@ func (r *discussionRepositoryImpl) FindLastIssueByLabel(ctx context.Context, iss
 	for _, label := range lastDiscussion.Labels.Nodes {
 		ls = append(ls, string(label.Name))
 	}
-	url := string(lastDiscussion.Url)
+	meta := map[string]string{
+		"categoryId": fmt.Sprintf("%+v", lastDiscussion.Category.Id),
+	}
 	return types.Issue{
 		Owner:      issue.Owner,
 		Repository: issue.Repository,
 		Title:      string(lastDiscussion.Title),
 		Body:       string(lastDiscussion.Body),
 		Labels:     ls,
-		URL:        &url,
+		URL:        (*string)(&lastDiscussion.Url),
+		Meta:       &meta,
 	}, nil
 }
 
@@ -206,13 +215,16 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 	for _, label := range m.UpdateDiscussion.Labels.Nodes {
 		ls = append(ls, string(label.Name))
 	}
-	url := string(m.UpdateDiscussion.Url)
+	meta := map[string]string{
+		"categoryId": fmt.Sprintf("%+v", m.UpdateDiscussion.Category.Id),
+	}
 	return types.Issue{
 		Owner:      discussionData.Owner,
 		Repository: discussionData.Repository,
 		Title:      string(m.UpdateDiscussion.Title),
 		Body:       string(m.UpdateDiscussion.Body),
 		Labels:     ls,
-		URL:        &url,
+		URL:        (*string)(&m.UpdateDiscussion.Url),
+		Meta:       &meta,
 	}, nil
 }

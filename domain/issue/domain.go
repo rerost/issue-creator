@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/url"
 	"os/exec"
@@ -88,9 +87,6 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 	var lastIssue types.Issue
 	if isDiscussion {
 		lastIssue, err = is.dr.FindLastIssueByLabel(ctx, _templateIssue)
-		fmt.Println("-------------------------------------")
-		fmt.Println(errors.Cause(err).Error())
-		fmt.Println("-------------------------------------")
 		if errors.Cause(err).Error() == repo.LastDiscussionNotFound {
 			url := "Last Issue is not found"
 			lastIssue = types.Issue{URL: &url}
