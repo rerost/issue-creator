@@ -49,7 +49,63 @@ type (
 )
 
 func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue) (types.Issue, error) {
-	return types.Issue{}, nil
+	if issue.Meta == nil {
+		return types.Issue{}, errors.New("Category not found")
+	}
+	if _, ok := (*issue.Meta)["categoryId"]; !ok {
+		return types.Issue{}, errors.New("Category not found")
+	}
+	var q struct {
+		Repository struct {
+			Id githubv4.ID
+		} `graphql:"repository(owner: $owner, name: $name)"`
+	}
+	variables := map[string]interface{}{
+		"owner": githubv4.String(issue.Owner),
+		"name":  githubv4.String(issue.Repository),
+	}
+
+	err := r.ghc.Query(ctx, &q, variables)
+	if err != nil {
+		return types.Issue{}, errors.WithStack(err)
+	}
+
+	var m struct {
+		CreateDiscussion struct {
+			Discussion struct {
+				Discussion
+			}
+		} `graphql:"createDiscussion(input: $input)"`
+	}
+	input := githubv4.CreateDiscussionInput{
+		RepositoryID: q.Repository.Id,
+		Title:        githubv4.String(issue.Title),
+		Body:         githubv4.String(issue.Body),
+		CategoryID:   githubv4.String((*issue.Meta)["categoryId"]),
+	}
+
+	err = r.ghc.Mutate(ctx, &m, input, nil)
+	if err != nil {
+		return types.Issue{}, errors.WithStack(err)
+	}
+
+	d := m.CreateDiscussion.Discussion.Discussion
+	ls := make([]string, 0, len(d.Labels.Nodes))
+	for _, label := range d.Labels.Nodes {
+		ls = append(ls, string(label.Name))
+	}
+	meta := map[string]string{
+		"categoryId": fmt.Sprintf("%+v", d.Category.Id),
+	}
+	return types.Issue{
+		Owner:      issue.Owner,
+		Repository: issue.Repository,
+		Title:      string(d.Title),
+		Body:       string(d.Body),
+		Labels:     ls,
+		URL:        (*string)(&d.Url),
+		Meta:       &meta,
+	}, nil
 }
 
 func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL string) (types.Issue, error) {
@@ -195,8 +251,10 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 
 	var m struct {
 		UpdateDiscussion struct {
-			Discussion
-		}
+			Discussion struct {
+				Discussion
+			}
+		} `graphql:"updateDiscussion(input: $input)"`
 	}
 
 	input := githubv4.UpdateDiscussionInput{
@@ -211,20 +269,21 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 		return types.Issue{}, errors.WithStack(err)
 	}
 
-	ls := make([]string, 0, len(m.UpdateDiscussion.Labels.Nodes))
-	for _, label := range m.UpdateDiscussion.Labels.Nodes {
+	d := m.UpdateDiscussion.Discussion.Discussion
+	ls := make([]string, 0, len(d.Labels.Nodes))
+	for _, label := range d.Labels.Nodes {
 		ls = append(ls, string(label.Name))
 	}
 	meta := map[string]string{
-		"categoryId": fmt.Sprintf("%+v", m.UpdateDiscussion.Category.Id),
+		"categoryId": fmt.Sprintf("%+v", d.Category.Id),
 	}
 	return types.Issue{
 		Owner:      discussionData.Owner,
 		Repository: discussionData.Repository,
-		Title:      string(m.UpdateDiscussion.Title),
-		Body:       string(m.UpdateDiscussion.Body),
+		Title:      string(d.Title),
+		Body:       string(d.Body),
 		Labels:     ls,
-		URL:        (*string)(&m.UpdateDiscussion.Url),
+		URL:        (*string)(&d.Url),
 		Meta:       &meta,
 	}, nil
 }

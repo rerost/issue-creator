@@ -124,6 +124,7 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 		Body:         body + " \n\n _Created from " + templateIssueURL + " by [issue-creator](https://github.com/rerost/issue-creator)_",
 		Labels:       _templateIssue.Labels,
 		LastIssueURL: *lastIssue.URL,
+		Meta:         _templateIssue.Meta,
 	}
 
 	s, _ := json.Marshal(res)
