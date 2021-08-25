@@ -11,6 +11,7 @@ import (
 )
 
 const LastDiscussionNotFound = "Not Found"
+const categoryKey = "categoryId"
 
 type DiscussionRepository interface {
 	Create(ctx context.Context, issue types.Issue) (types.Issue, error)
@@ -52,7 +53,7 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 	if issue.Meta == nil {
 		return types.Issue{}, errors.New("Category not found")
 	}
-	if _, ok := (*issue.Meta)["categoryId"]; !ok {
+	if _, ok := (*issue.Meta)[categoryKey]; !ok {
 		return types.Issue{}, errors.New("Category not found")
 	}
 	var q struct {
@@ -81,7 +82,7 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 		RepositoryID: q.Repository.Id,
 		Title:        githubv4.String(issue.Title),
 		Body:         githubv4.String(issue.Body),
-		CategoryID:   githubv4.String((*issue.Meta)["categoryId"]),
+		CategoryID:   githubv4.String((*issue.Meta)[categoryKey]),
 	}
 
 	err = r.ghc.Mutate(ctx, &m, input, nil)
@@ -95,7 +96,7 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 		ls = append(ls, string(label.Name))
 	}
 	meta := map[string]string{
-		"categoryId": fmt.Sprintf("%+v", d.Category.Id),
+		categoryKey: fmt.Sprintf("%+v", d.Category.Id),
 	}
 	return types.Issue{
 		Owner:      issue.Owner,
@@ -138,7 +139,7 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 	}
 
 	meta := map[string]string{
-		"categoryId": fmt.Sprintf("%+v", q.Repository.Discussion.Category.Id),
+		categoryKey: fmt.Sprintf("%+v", q.Repository.Discussion.Category.Id),
 	}
 
 	return types.Issue{
@@ -195,7 +196,7 @@ func (r *discussionRepositoryImpl) FindLastIssueByLabel(ctx context.Context, iss
 		ls = append(ls, string(label.Name))
 	}
 	meta := map[string]string{
-		"categoryId": fmt.Sprintf("%+v", lastDiscussion.Category.Id),
+		categoryKey: fmt.Sprintf("%+v", lastDiscussion.Category.Id),
 	}
 	return types.Issue{
 		Owner:      issue.Owner,
@@ -275,7 +276,7 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 		ls = append(ls, string(label.Name))
 	}
 	meta := map[string]string{
-		"categoryId": fmt.Sprintf("%+v", d.Category.Id),
+		categoryKey: fmt.Sprintf("%+v", d.Category.Id),
 	}
 	return types.Issue{
 		Owner:      discussionData.Owner,
