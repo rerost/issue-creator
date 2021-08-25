@@ -40,11 +40,6 @@ type (
 			Id   githubv4.ID
 			Name githubv4.String
 		}
-		Labels struct {
-			Nodes []struct {
-				Name githubv4.String
-			}
-		} `graphql:"labels(first: 10)"`
 		CreatedAt githubv4.Date
 	}
 )
@@ -91,10 +86,6 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 	}
 
 	d := m.CreateDiscussion.Discussion.Discussion
-	ls := make([]string, 0, len(d.Labels.Nodes))
-	for _, label := range d.Labels.Nodes {
-		ls = append(ls, string(label.Name))
-	}
 	meta := map[string]string{
 		categoryKey: fmt.Sprintf("%+v", d.Category.Id),
 	}
@@ -103,7 +94,6 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 		Repository: issue.Repository,
 		Title:      string(d.Title),
 		Body:       string(d.Body),
-		Labels:     ls,
 		URL:        (*string)(&d.Url),
 		Meta:       &meta,
 	}, nil
@@ -133,11 +123,6 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 		return types.Issue{}, errors.WithStack(err)
 	}
 
-	ls := make([]string, 0, len(q.Repository.Discussion.Labels.Nodes))
-	for _, label := range q.Repository.Discussion.Labels.Nodes {
-		ls = append(ls, string(label.Name))
-	}
-
 	meta := map[string]string{
 		categoryKey: fmt.Sprintf("%+v", q.Repository.Discussion.Category.Id),
 	}
@@ -146,11 +131,10 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 		Owner:      discussionData.Owner,
 		Repository: discussionData.Repository,
 
-		Title:  string(q.Repository.Discussion.Title),
-		Body:   string(q.Repository.Discussion.Body),
-		Labels: ls,
-		URL:    (*string)(&q.Repository.Discussion.Url),
-		Meta:   &meta,
+		Title: string(q.Repository.Discussion.Title),
+		Body:  string(q.Repository.Discussion.Body),
+		URL:   (*string)(&q.Repository.Discussion.Url),
+		Meta:  &meta,
 	}, nil
 }
 
@@ -160,17 +144,14 @@ func (r *discussionRepositoryImpl) FindLastIssueByLabel(ctx context.Context, iss
 			Nodes []struct {
 				Discussion `graphql:"... on Discussion"`
 			}
-		} `graphql:"search(query: $query, type: $type, first: 10)"`
+		} `graphql:"search(query: $query, type: $type, first: 100)"`
 	}
-	queries := make([]string, 0, len(issue.Labels)+1)
-	queries = append(
-		queries,
+	searchQueries := make([]string, 0, len(issue.Labels)+1)
+	searchQueries = append(
+		searchQueries,
 		fmt.Sprintf("repo:%s/%s", issue.Owner, issue.Repository),
 	)
-	for _, label := range issue.Labels {
-		queries = append(queries, fmt.Sprintf(`label:%s`, label))
-	}
-	githubSearchQuery := strings.Join(queries, " ")
+	githubSearchQuery := strings.Join(searchQueries, " ")
 	variables := map[string]interface{}{
 		"query": githubv4.String(githubSearchQuery),
 		"type":  githubv4.SearchTypeDiscussion,
@@ -191,10 +172,6 @@ func (r *discussionRepositoryImpl) FindLastIssueByLabel(ctx context.Context, iss
 		}
 	}
 
-	ls := make([]string, 0, len(lastDiscussion.Labels.Nodes))
-	for _, label := range lastDiscussion.Labels.Nodes {
-		ls = append(ls, string(label.Name))
-	}
 	meta := map[string]string{
 		categoryKey: fmt.Sprintf("%+v", lastDiscussion.Category.Id),
 	}
@@ -203,7 +180,6 @@ func (r *discussionRepositoryImpl) FindLastIssueByLabel(ctx context.Context, iss
 		Repository: issue.Repository,
 		Title:      string(lastDiscussion.Title),
 		Body:       string(lastDiscussion.Body),
-		Labels:     ls,
 		URL:        (*string)(&lastDiscussion.Url),
 		Meta:       &meta,
 	}, nil
@@ -271,10 +247,6 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 	}
 
 	d := m.UpdateDiscussion.Discussion.Discussion
-	ls := make([]string, 0, len(d.Labels.Nodes))
-	for _, label := range d.Labels.Nodes {
-		ls = append(ls, string(label.Name))
-	}
 	meta := map[string]string{
 		categoryKey: fmt.Sprintf("%+v", d.Category.Id),
 	}
@@ -283,7 +255,6 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 		Repository: discussionData.Repository,
 		Title:      string(d.Title),
 		Body:       string(d.Body),
-		Labels:     ls,
 		URL:        (*string)(&d.Url),
 		Meta:       &meta,
 	}, nil
