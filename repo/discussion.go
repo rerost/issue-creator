@@ -16,7 +16,7 @@ const categoryKey = "categoryId"
 type DiscussionRepository interface {
 	Create(ctx context.Context, issue types.Issue) (types.Issue, error)
 	FindByURL(ctx context.Context, issueURL string) (types.Issue, error)
-	FindLastIssueByLabel(ctx context.Context, issue types.Issue) (types.Issue, error)
+	FindLastDiscussion(ctx context.Context, issue types.Issue) (types.Issue, error)
 	CloseByURL(ctx context.Context, issueURL string) (types.Issue, error)
 }
 
@@ -138,7 +138,7 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 	}, nil
 }
 
-func (r *discussionRepositoryImpl) FindLastIssueByLabel(ctx context.Context, issue types.Issue) (types.Issue, error) {
+func (r *discussionRepositoryImpl) FindLastDiscussion(ctx context.Context, issue types.Issue) (types.Issue, error) {
 	var q struct {
 		Search struct {
 			Nodes []struct {
@@ -146,7 +146,9 @@ func (r *discussionRepositoryImpl) FindLastIssueByLabel(ctx context.Context, iss
 			}
 		} `graphql:"search(query: $query, type: $type, first: 100)"`
 	}
+	title := issue.Title
 	searchQueries := make([]string, 0, len(issue.Labels)+1)
+	searchQueries = append(searchQueries, fmt.Sprintf("%s in:title", title))
 	searchQueries = append(
 		searchQueries,
 		fmt.Sprintf("repo:%s/%s", issue.Owner, issue.Repository),

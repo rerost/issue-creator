@@ -86,7 +86,7 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 
 	var lastIssue types.Issue
 	if isDiscussion {
-		lastIssue, err = is.dr.FindLastIssueByLabel(ctx, _templateIssue)
+		lastIssue, err = is.dr.FindLastDiscussion(ctx, _templateIssue)
 		if err != nil && errors.Cause(err).Error() == repo.LastDiscussionNotFound {
 			url := "Last Issue is not found"
 			lastIssue = types.Issue{URL: &url}
