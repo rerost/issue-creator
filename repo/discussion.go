@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -146,7 +147,8 @@ func (r *discussionRepositoryImpl) FindLastDiscussion(ctx context.Context, issue
 			}
 		} `graphql:"search(query: $query, type: $type, first: 100)"`
 	}
-	title := issue.Title
+	p, _ := regexp.Compile("({{.*?}})")
+	title := p.ReplaceAllString(issue.Title, "")
 	searchQueries := make([]string, 0, len(issue.Labels)+1)
 	searchQueries = append(searchQueries, fmt.Sprintf("%s in:title", title))
 	searchQueries = append(
