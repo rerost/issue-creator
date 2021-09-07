@@ -14,21 +14,8 @@ import (
 const LastDiscussionNotFound = "Not Found"
 const categoryKey = "categoryId"
 
-type DiscussionRepository interface {
-	Create(ctx context.Context, issue types.Issue) (types.Issue, error)
-	FindByURL(ctx context.Context, issueURL string) (types.Issue, error)
-	FindLastDiscussion(ctx context.Context, issue types.Issue) (types.Issue, error)
-	CloseByURL(ctx context.Context, issueURL string) (types.Issue, error)
-}
-
 type discussionRepositoryImpl struct {
 	ghc *githubv4.Client
-}
-
-func NewDiscussionRepository(githubClient *githubv4.Client) DiscussionRepository {
-	return &discussionRepositoryImpl{
-		ghc: githubClient,
-	}
 }
 
 type (
@@ -139,7 +126,7 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 	}, nil
 }
 
-func (r *discussionRepositoryImpl) FindLastDiscussion(ctx context.Context, issue types.Issue) (types.Issue, error) {
+func (r *discussionRepositoryImpl) FindLastIssue(ctx context.Context, issue types.Issue) (types.Issue, error) {
 	var q struct {
 		Search struct {
 			Nodes []struct {
@@ -262,4 +249,12 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 		URL:        (*string)(&d.Url),
 		Meta:       &meta,
 	}, nil
+}
+
+func (r *discussionRepositoryImpl) IsValidTemplateIssue(i types.Issue) bool {
+	if i.Meta == nil {
+		return false
+	}
+	_, ok := (*i.Meta)[categoryKey]
+	return ok
 }

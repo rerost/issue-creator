@@ -16,6 +16,7 @@ type Config struct {
 	ManifestTemplateFile   string
 	K8sCommands            []string
 	CloseLastIssue         bool
+	IsDiscussion           bool
 	CheckBeforeCreateIssue *string `mapstructure:"check-before-create-issue"`
 
 	Verbose bool
@@ -68,6 +69,7 @@ func NewConfig() (Config, error) {
 	pflag.StringP("ManifestTemplateFile", "", "./template.tpl", "k8s manifest file template path")
 	pflag.StringP("K8sCommands", "", "", "k8scommands for apply")
 	pflag.BoolP("CloseLastIssue", "c", false, "Close last issue")
+	pflag.BoolP("IsDiscussion", "", false, "for Discussion")
 	pflag.BoolP("verbose", "v", false, "")
 	pflag.BoolP("debug", "d", false, "")
 	pflag.StringP("check-before-create-issue", "", "", "")

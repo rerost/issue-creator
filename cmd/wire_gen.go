@@ -21,11 +21,10 @@ import (
 
 func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
 	client := NewGithubClient(ctx, cfg)
-	issueRepository := repo.NewIssueRepository(client)
 	githubv4Client := NewGithubGraphqlClient(ctx, cfg)
-	discussionRepository := repo.NewDiscussionRepository(githubv4Client)
+	issueRepository := NewIssueRepository(cfg, client, githubv4Client)
 	time := CurrentTime(cfg)
-	issueService := NewIssueService(cfg, issueRepository, discussionRepository, time)
+	issueService := NewIssueService(cfg, issueRepository, time)
 	v := NewK8sCommand(cfg)
 	scheduleRepository := repo.NewScheduleRepository(v)
 	scheduleService := NewScheduleService(cfg, scheduleRepository)
@@ -68,13 +67,20 @@ func NewTemplateFile(cfg Config) string {
 	return cfg.ManifestTemplateFile
 }
 
-func NewIssueService(cfg Config, issueRepo repo.IssueRepository, discussRepo repo.DiscussionRepository, ct time.Time) issue.IssueService {
+func NewIssueService(cfg Config, issueRepo repo.IssueRepository, ct time.Time) issue.IssueService {
 	return issue.NewIssueService(
 		issueRepo,
-		discussRepo,
 		ct,
 		cfg.CloseLastIssue,
 		cfg.CheckBeforeCreateIssue,
+	)
+}
+
+func NewIssueRepository(cfg Config, githubClient *github.Client, githubGraphqlClient *githubv4.Client) repo.IssueRepository {
+	return repo.NewIssueRepository(
+		cfg.IsDiscussion,
+		githubClient,
+		githubGraphqlClient,
 	)
 }
 

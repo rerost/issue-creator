@@ -10,24 +10,31 @@ import (
 	"github.com/google/go-github/v37/github"
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/types"
+	"github.com/shurcooL/githubv4"
 	"go.uber.org/zap"
 )
 
 type IssueRepository interface {
 	Create(ctx context.Context, issue types.Issue) (types.Issue, error)
 	FindByURL(ctx context.Context, issueURL string) (types.Issue, error)
-	FindLastIssueByLabel(ctx context.Context, issue types.Issue) (types.Issue, error)
+	FindLastIssue(ctx context.Context, issue types.Issue) (types.Issue, error)
 	CloseByURL(ctx context.Context, issueURL string) (types.Issue, error)
+	IsValidTemplateIssue(types.Issue) bool
+}
+
+func NewIssueRepository(isDiscussion bool, githubClient *github.Client, githubGraphqlClient *githubv4.Client) IssueRepository {
+	if isDiscussion {
+		return &discussionRepositoryImpl{
+			ghc: githubGraphqlClient,
+		}
+	}
+	return &issueRepositoryImpl{
+		ghc: githubClient,
+	}
 }
 
 type issueRepositoryImpl struct {
 	ghc *github.Client
-}
-
-func NewIssueRepository(githubClient *github.Client) IssueRepository {
-	return &issueRepositoryImpl{
-		ghc: githubClient,
-	}
 }
 
 func (ir *issueRepositoryImpl) Create(ctx context.Context, issue types.Issue) (types.Issue, error) {
@@ -79,7 +86,7 @@ func (ir *issueRepositoryImpl) FindByURL(ctx context.Context, issueURL string) (
 	}, nil
 }
 
-func (ir *issueRepositoryImpl) FindLastIssueByLabel(ctx context.Context, issue types.Issue) (types.Issue, error) {
+func (ir *issueRepositoryImpl) FindLastIssue(ctx context.Context, issue types.Issue) (types.Issue, error) {
 	labelsQueries := []string{}
 	for _, l := range issue.Labels {
 		labelsQueries = append(labelsQueries, fmt.Sprintf(`label:"%s"`, l))
@@ -172,6 +179,10 @@ func parseIssueURL(u string) (issueURLData, error) {
 		Repository:  s[2],
 		IssueNumber: issueNumber,
 	}, nil
+}
+
+func (r *issueRepositoryImpl) IsValidTemplateIssue(i types.Issue) bool {
+	return len(i.Labels) != 0
 }
 
 func pluckName(gl []*github.Label) []string {
