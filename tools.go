@@ -7,11 +7,4 @@ package tools
 // tool dependencies
 import (
 	_ "github.com/google/wire/cmd/wire"
-	_ "github.com/shurcooL/githubv4"
 )
-
-// If you want to use tools, please run the following command:
-//  go generate ./tools.go
-//
-//go:generate go build -v -o=./bin/wire github.com/google/wire/cmd/wire
-//go:generate go build -v -o=./bin/githubv4 github.com/shurcooL/githubv4
