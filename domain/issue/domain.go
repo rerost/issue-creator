@@ -27,13 +27,13 @@ type IssueService interface {
 }
 
 type issueServiceImpl struct {
-	ir                     repo.IssueRepository
+	ir                     repo.Repository
 	ct                     time.Time
 	closeLastIssue         bool
 	checkBeforeCreateIssue *string
 }
 
-func NewIssueService(issueRepository repo.IssueRepository, currentTime time.Time, closeLastIssue bool, checkBeforeCreateIssue *string) IssueService {
+func NewIssueService(issueRepository repo.Repository, currentTime time.Time, closeLastIssue bool, checkBeforeCreateIssue *string) IssueService {
 	return &issueServiceImpl{
 		ir:                     issueRepository,
 		ct:                     currentTime,
@@ -44,8 +44,9 @@ func NewIssueService(issueRepository repo.IssueRepository, currentTime time.Time
 
 // Render return not saved issue
 func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string) (types.Issue, error) {
+	r := is.ir.Selector(templateIssueURL)
 	zap.L().Debug("templateIssueURL", zap.String("templateIssueURL", templateIssueURL))
-	_templateIssue, err := is.ir.FindByURL(ctx, templateIssueURL)
+	_templateIssue, err := r.FindByURL(ctx, templateIssueURL)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}
@@ -65,11 +66,11 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 		return types.Issue{}, errors.Wrap(err, "Failed to parse body")
 	}
 
-	if !is.ir.IsValidTemplateIssue(_templateIssue) {
+	if !r.IsValidTemplateIssue(_templateIssue) {
 		return types.Issue{}, errors.New("Template issue is not valid")
 	}
 
-	lastIssue, err := is.ir.FindLastIssue(ctx, _templateIssue)
+	lastIssue, err := r.FindLastIssue(ctx, _templateIssue)
 	if err != nil {
 		return types.Issue{}, errors.Wrap(err, "Failed to get last issue")
 	}
@@ -109,6 +110,7 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 }
 
 func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (types.Issue, error) {
+	r := is.ir.Selector(templateURL)
 	i, err := is.render(ctx, templateURL)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
@@ -133,7 +135,7 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 			return types.Issue{}, errors.WithStack(err)
 		}
 	}
-	created, err := is.ir.Create(ctx, i)
+	created, err := r.Create(ctx, i)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}
@@ -142,7 +144,7 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 		return created, nil
 	}
 
-	_, err = is.ir.CloseByURL(ctx, i.LastIssueURL)
+	_, err = r.CloseByURL(ctx, i.LastIssueURL)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}

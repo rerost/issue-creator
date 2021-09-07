@@ -48,20 +48,12 @@ func NewTemplateFile(cfg Config) string {
 	return cfg.ManifestTemplateFile
 }
 
-func NewIssueService(cfg Config, issueRepo repo.IssueRepository, ct time.Time) issue.IssueService {
+func NewIssueService(cfg Config, issueRepo repo.Repository, ct time.Time) issue.IssueService {
 	return issue.NewIssueService(
 		issueRepo,
 		ct,
 		cfg.CloseLastIssue,
 		cfg.CheckBeforeCreateIssue,
-	)
-}
-
-func NewIssueRepository(cfg Config, githubClient *github.Client, githubGraphqlClient *githubv4.Client) repo.IssueRepository {
-	return repo.NewIssueRepository(
-		cfg.IsDiscussion,
-		githubClient,
-		githubGraphqlClient,
 	)
 }
 
@@ -73,7 +65,7 @@ func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
 	wire.Build(
 		NewCmdRoot,
 		NewIssueService,
-		NewIssueRepository,
+		repo.NewRepository,
 		CurrentTime,
 		NewGithubClient,
 		NewGithubGraphqlClient,

@@ -22,14 +22,26 @@ type IssueRepository interface {
 	IsValidTemplateIssue(types.Issue) bool
 }
 
-func NewIssueRepository(isDiscussion bool, githubClient *github.Client, githubGraphqlClient *githubv4.Client) IssueRepository {
-	if isDiscussion {
-		return &discussionRepositoryImpl{
-			ghc: githubGraphqlClient,
-		}
+type Repository struct {
+	discussionRepo IssueRepository
+	issueRepo      IssueRepository
+}
+
+func (r Repository) Selector(url string) IssueRepository {
+	if isDiscussion(url) {
+		return r.discussionRepo
 	}
-	return &issueRepositoryImpl{
-		ghc: githubClient,
+	return r.issueRepo
+}
+
+func NewRepository(githubClient *github.Client, githubGraphqlClient *githubv4.Client) Repository {
+	return Repository{
+		discussionRepo: &discussionRepositoryImpl{
+			ghc: githubGraphqlClient,
+		},
+		issueRepo: &issueRepositoryImpl{
+			ghc: githubClient,
+		},
 	}
 }
 
@@ -195,4 +207,22 @@ func pluckName(gl []*github.Label) []string {
 	}
 
 	return res
+}
+
+func isDiscussion(templateIssueURL string) bool {
+	pu, err := url.Parse(templateIssueURL)
+	if err != nil {
+		zap.L().Debug("error", zap.String("url parse err", err.Error()))
+		return false
+	}
+
+	path := pu.Path
+	s := strings.Split(path, "/")
+	zap.L().Debug("", zap.String("path", path))
+	// Expect: /:owner/:repository/[discussions|issues]/:number
+	if len(s) != 5 {
+		zap.L().Debug("error", zap.Int("path length", len(s)))
+		return false
+	}
+	return "discussions" == s[3]
 }
