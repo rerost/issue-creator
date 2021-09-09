@@ -8,3 +8,5 @@ RUN go mod download
 
 COPY . .
 RUN go install
+
+ENTRYPOINT ["./action.sh"]

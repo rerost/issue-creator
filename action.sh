@@ -1,4 +1,4 @@
-#!/bin/sh -l
+#!/bin/bash
 
 repository=$1
 template_issue=$2
@@ -9,7 +9,7 @@ is_discussion=$6
 
 type="issues"
 
-if [ ${is_discussion} = "true" ]; then
+if [ "${is_discussion}" = "true" ]; then
   type="discussions"
 fi
 
