@@ -26,6 +26,14 @@ issue-creator schedule apply '30 5 * * 1' https://github.com/rerost/issue-creato
 issue-creator schedule apply '30 5 * * 1' https://github.com/rerost/issue-creator/issues/1 --CloseLastIssue
 ```
 
+## Discussion
+Please create 'Archive' disccusion category before create disccusion by issue-creator.
+e.g. https://github.com/rerost/issue-creator/discussions/categories/archive
+
+```
+issue-creator create https://github.com/rerost/issue-creator/discussions/48
+```
+
 ## Use from GitHub Actions
 Example
 ```
@@ -41,4 +49,6 @@ jobs:
       - uses: rerost/issue-creator@v0.1.6
         with:
           template-issue: 1 # https://github.com/rerost/issue-creator/issues/1
+          discussion: true # Required if you want to create a discussion
 ```
+

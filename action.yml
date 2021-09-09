@@ -12,6 +12,9 @@ inputs:
     default: "echo 'OK'"
   token:
     default: ${{ github.token }}
+  discussion:
+    description: 'create discussion mode'
+    default: false
   repository:
     description: 'e.g. rerost/issue-creator'
     default: ${{ github.repository }}
@@ -19,9 +22,10 @@ runs:
   using: "docker"
   image: 'Dockerfile'
   args:
-    - issue-creator
-    - create
-    - https://github.com/${{ inputs.repository }}/issues/${{ inputs.template-issue }}
-    - --CloseLastIssue=${{ inputs.close-last-issue }}
-    - --check-before-create-issue=${{ inputs.check-before-create-issue }}
-    - --GithubAccessToken=${{ inputs.token }}
+    - ./action.sh
+    - ${{repository}}
+    - ${{template-issue}}
+    - ${{close-last-issue}}
+    - ${{check-before-create-issue}}
+    - ${{token}}
+    - ${{discussion}}
