@@ -23,9 +23,9 @@ runs:
   image: 'Dockerfile'
   args:
     - ./action.sh
-    - ${{repository}}
-    - ${{template-issue}}
-    - ${{close-last-issue}}
-    - ${{check-before-create-issue}}
-    - ${{token}}
-    - ${{discussion}}
+    - ${{ inputs.repository }}
+    - ${{ inputs.template-issue }}
+    - ${{ inputs.close-last-issue }}
+    - ${{ inputs.check-before-create-issue }}
+    - ${{ inputs.token }}
+    - ${{ inputs.discussion }}
