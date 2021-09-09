@@ -22,7 +22,6 @@ runs:
   using: "docker"
   image: 'Dockerfile'
   args:
-    - ./action.sh
     - ${{ inputs.repository }}
     - ${{ inputs.template-issue }}
     - ${{ inputs.close-last-issue }}
