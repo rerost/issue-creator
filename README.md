@@ -48,7 +48,7 @@ jobs:
   create-issue:
     runs-on: ubuntu-latest
     steps:
-      - uses: rerost/issue-creator@v0.1.6
+      - uses: rerost/issue-creator@v0.1.16
         with:
           template-issue: 1 # https://github.com/rerost/issue-creator/issues/1
           discussion: true # Required if you want to create a discussion
