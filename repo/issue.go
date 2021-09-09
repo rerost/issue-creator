@@ -17,7 +17,7 @@ import (
 type IssueRepository interface {
 	Create(ctx context.Context, issue types.Issue) (types.Issue, error)
 	FindByURL(ctx context.Context, issueURL string) (types.Issue, error)
-	FindLastIssue(ctx context.Context, issue types.Issue) (types.Issue, error)
+	FindLastIssue(ctx context.Context, templateIssue types.Issue) (types.Issue, error)
 	CloseByURL(ctx context.Context, issueURL string) (types.Issue, error)
 	IsValidTemplateIssue(types.Issue) bool
 }
@@ -98,15 +98,15 @@ func (ir *issueRepositoryImpl) FindByURL(ctx context.Context, issueURL string) (
 	}, nil
 }
 
-func (ir *issueRepositoryImpl) FindLastIssue(ctx context.Context, issue types.Issue) (types.Issue, error) {
+func (ir *issueRepositoryImpl) FindLastIssue(ctx context.Context, templateIssue types.Issue) (types.Issue, error) {
 	labelsQueries := []string{}
-	for _, l := range issue.Labels {
+	for _, l := range templateIssue.Labels {
 		labelsQueries = append(labelsQueries, fmt.Sprintf(`label:"%s"`, l))
 	}
 
 	queries := append(
 		labelsQueries,
-		fmt.Sprintf("repo:%s/%s", issue.Owner, issue.Repository),
+		fmt.Sprintf("repo:%s/%s", templateIssue.Owner, templateIssue.Repository),
 		"sort:created-desc",
 	)
 	githubSearchQuery := strings.Join(queries, " ")
@@ -122,8 +122,8 @@ func (ir *issueRepositoryImpl) FindLastIssue(ctx context.Context, issue types.Is
 
 	labels := types.FromGithubLabels(r.Issues[0].Labels)
 	return types.Issue{
-		Owner:      issue.Owner,
-		Repository: issue.Repository,
+		Owner:      templateIssue.Owner,
+		Repository: templateIssue.Repository,
 
 		Title:  r.Issues[0].GetTitle(),
 		Body:   r.Issues[0].GetBody(),

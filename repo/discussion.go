@@ -126,7 +126,7 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 	}, nil
 }
 
-func (r *discussionRepositoryImpl) FindLastIssue(ctx context.Context, issue types.Issue) (types.Issue, error) {
+func (r *discussionRepositoryImpl) FindLastIssue(ctx context.Context, templateIssue types.Issue) (types.Issue, error) {
 	var q struct {
 		Search struct {
 			Nodes []struct {
@@ -135,12 +135,12 @@ func (r *discussionRepositoryImpl) FindLastIssue(ctx context.Context, issue type
 		} `graphql:"search(query: $query, type: $type, first: 100)"`
 	}
 	p, _ := regexp.Compile("({{.*?}})")
-	title := p.ReplaceAllString(issue.Title, "")
-	searchQueries := make([]string, 0, len(issue.Labels)+1)
+	title := p.ReplaceAllString(templateIssue.Title, "")
+	searchQueries := make([]string, 0)
 	searchQueries = append(searchQueries, fmt.Sprintf("%s in:title", title))
 	searchQueries = append(
 		searchQueries,
-		fmt.Sprintf("repo:%s/%s", issue.Owner, issue.Repository),
+		fmt.Sprintf("repo:%s/%s", templateIssue.Owner, templateIssue.Repository),
 	)
 	githubSearchQuery := strings.Join(searchQueries, " ")
 	variables := map[string]interface{}{
@@ -152,7 +152,7 @@ func (r *discussionRepositoryImpl) FindLastIssue(ctx context.Context, issue type
 		return types.Issue{}, errors.WithStack(err)
 	}
 	if len(q.Search.Nodes) == 0 {
-		return issue, errors.New(LastDiscussionNotFound)
+		return templateIssue, errors.New(LastDiscussionNotFound)
 	}
 
 	lastDiscussion := q.Search.Nodes[0].discussion
@@ -167,8 +167,8 @@ func (r *discussionRepositoryImpl) FindLastIssue(ctx context.Context, issue type
 		categoryKey: fmt.Sprintf("%+v", lastDiscussion.Category.Id),
 	}
 	return types.Issue{
-		Owner:      issue.Owner,
-		Repository: issue.Repository,
+		Owner:      templateIssue.Owner,
+		Repository: templateIssue.Repository,
 		Title:      string(lastDiscussion.Title),
 		Body:       string(lastDiscussion.Body),
 		URL:        (*string)(&lastDiscussion.Url),
