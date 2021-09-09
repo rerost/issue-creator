@@ -11,6 +11,7 @@ import (
 	"github.com/rerost/issue-creator/domain/issue"
 	"github.com/rerost/issue-creator/domain/schedule"
 	"github.com/rerost/issue-creator/repo"
+	"github.com/shurcooL/githubv4"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 	"time"
@@ -20,9 +21,10 @@ import (
 
 func InitializeCmd(ctx context.Context, cfg Config) (*cobra.Command, error) {
 	client := NewGithubClient(ctx, cfg)
-	issueRepository := repo.NewIssueRepository(client)
+	githubv4Client := NewGithubGraphqlClient(ctx, cfg)
+	repository := repo.NewRepository(client, githubv4Client)
 	time := CurrentTime(cfg)
-	issueService := NewIssueService(cfg, issueRepository, time)
+	issueService := NewIssueService(cfg, repository, time)
 	v := NewK8sCommand(cfg)
 	scheduleRepository := repo.NewScheduleRepository(v)
 	scheduleService := NewScheduleService(cfg, scheduleRepository)
@@ -47,6 +49,16 @@ func NewGithubClient(ctx context.Context, cfg Config) *github.Client {
 	return c
 }
 
+func NewGithubGraphqlClient(ctx context.Context, cfg Config) *githubv4.Client {
+	src := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: cfg.GithubAccessToken},
+	)
+	httpClient := oauth2.NewClient(ctx, src)
+
+	c := githubv4.NewClient(httpClient)
+	return c
+}
+
 func NewK8sCommand(cfg Config) []string {
 	return cfg.K8sCommands
 }
@@ -55,7 +67,7 @@ func NewTemplateFile(cfg Config) string {
 	return cfg.ManifestTemplateFile
 }
 
-func NewIssueService(cfg Config, issueRepo repo.IssueRepository, ct time.Time) issue.IssueService {
+func NewIssueService(cfg Config, issueRepo repo.Repository, ct time.Time) issue.IssueService {
 	return issue.NewIssueService(
 		issueRepo,
 		ct,

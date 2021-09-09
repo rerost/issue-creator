@@ -11,6 +11,7 @@ type Issue struct {
 	Labels       []string
 	URL          *string // nil when befor create
 	LastIssueURL string
+	Meta         *map[string]string
 }
 
 func FromGithubLabels(labels []*github.Label) []string {
