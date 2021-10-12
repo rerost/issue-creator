@@ -1,6 +1,6 @@
 module github.com/rerost/issue-creator
 
-go 1.12
+go 1.16
 
 require (
 	github.com/Masterminds/goutils v1.1.0 // indirect
