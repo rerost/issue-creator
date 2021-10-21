@@ -8,15 +8,15 @@ inputs:
     description: 'If true, issue-creator closes the previous issue.'
     default: true
   check-before-create-issue:
-    description: 'shell script'
+    description: 'The issue will be created only when the status code of this script is 0.'
     default: "echo 'OK'"
   token:
     default: ${{ github.token }}
   discussion:
-    description: 'create discussion mode'
+    description: 'If true, creates a discussion instead.'
     default: false
   repository:
-    description: 'e.g. rerost/issue-creator'
+    description: 'Specify a repository where the issue will be created. e.g. rerost/issue-creator'
     default: ${{ github.repository }}
 runs:
   using: "docker"
