@@ -14,7 +14,7 @@ $ GO111MODULE=on go get github.com/rerost/issue-creator
 $ issue-creator
 ```
 
-## Useage
+## Usage
 NOTE: please set `GithubAccessToken` for create issue, `K8sCommands` for schedule issue
 
 ```
