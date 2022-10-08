@@ -31,7 +31,6 @@ issue-creator schedule apply '30 5 * * 1' https://github.com/rerost/issue-creato
 
 Please create 'Archive' disccusion category before create disccusion by issue-creator.  
 e.g. https://github.com/rerost/issue-creator/discussions/categories/archive  
-NOTE: issue-creator does not add labels on new Discussion automatically.
 
 ```
 issue-creator create https://github.com/rerost/issue-creator/discussions/48
@@ -49,7 +48,7 @@ jobs:
   create-issue:
     runs-on: ubuntu-latest
     steps:
-      - uses: rerost/issue-creator@v0.1.16
+      - uses: rerost/issue-creator@v0.1.18
         with:
           template-issue: 1 # https://github.com/rerost/issue-creator/issues/1
           discussion: true # Required if you want to create a discussion
