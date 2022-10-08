@@ -1,4 +1,4 @@
-FROM golang:1.15
+FROM golang:1.19
 
 WORKDIR $GOPATH/src/github.com/rerost/issue-creator
 
