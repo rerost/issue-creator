@@ -21,7 +21,7 @@ require (
 	github.com/stretchr/testify v1.3.0 // indirect
 	go.uber.org/zap v1.10.0
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
-	golang.org/x/sys v0.0.0-20190614160838-b47fdc937951 // indirect
+	golang.org/x/sys v0.0.0-20221006211917-84dc82d7e875 // indirect
 	golang.org/x/text v0.3.2 // indirect
 	golang.org/x/tools v0.0.0-20190506145303-2d16b83fe98c // indirect
 	google.golang.org/appengine v1.5.0 // indirect

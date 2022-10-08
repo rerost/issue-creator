@@ -8,8 +8,8 @@ type Issue struct {
 
 	Title        string
 	Body         string
-	Labels       []string
-	URL          *string // nil when befor create
+	Labels       []string // NOTE: Discussionの場合はID, Isssueの場合はlabel名が入っている
+	URL          *string  // nil when befor create
 	LastIssueURL string
 	Meta         *map[string]string
 }

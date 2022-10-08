@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/types"
 	"github.com/shurcooL/githubv4"
+	"go.uber.org/zap"
 )
 
 const LastDiscussionNotFound = "Not Found"
@@ -29,8 +30,23 @@ type (
 			Name githubv4.String
 		}
 		CreatedAt githubv4.Date
+		Labels    struct {
+			Nodes []struct {
+				Id githubv4.String
+			}
+		} `graphql:"labels(first: 100)"`
 	}
 )
+
+func (d Discussion) LabelIDs() []string {
+	labelIDs := make([]string, 0, len(d.Labels.Nodes))
+
+	for _, label := range d.Labels.Nodes {
+		labelIDs = append(labelIDs, string(label.Id))
+	}
+
+	return labelIDs
+}
 
 func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue) (types.Issue, error) {
 	if issue.Meta == nil {
@@ -54,26 +70,72 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 		return types.Issue{}, errors.WithStack(err)
 	}
 
-	var m struct {
+	// Create Discussion
+	var createDisscussionMutation struct {
 		CreateDiscussion struct {
 			Discussion struct {
 				Discussion
 			}
 		} `graphql:"createDiscussion(input: $input)"`
 	}
-	input := githubv4.CreateDiscussionInput{
-		RepositoryID: q.Repository.Id,
-		Title:        githubv4.String(issue.Title),
-		Body:         githubv4.String(issue.Body),
-		CategoryID:   githubv4.String((*issue.Meta)[categoryKey]),
+	{
+		input := githubv4.CreateDiscussionInput{
+			RepositoryID: q.Repository.Id,
+			Title:        githubv4.String(issue.Title),
+			Body:         githubv4.String(issue.Body),
+			CategoryID:   githubv4.String((*issue.Meta)[categoryKey]),
+		}
+
+		err = r.ghc.Mutate(ctx, &createDisscussionMutation, input, nil)
+		if err != nil {
+			return types.Issue{}, errors.WithStack(err)
+		}
+		zap.L().Debug("created discussion", zap.String("ID", createDisscussionMutation.CreateDiscussion.Discussion.Id.(string)))
 	}
 
-	err = r.ghc.Mutate(ctx, &m, input, nil)
+	// Add Labels
+	{
+		var addLabelMutation struct {
+			AddLabelsToLabelable struct {
+				ClientMutationId githubv4.String
+			} `graphql:"addLabelsToLabelable(input: $input)"`
+		}
+		labelIDs := []githubv4.ID{}
+		for _, labelID := range issue.Labels {
+			labelIDs = append(labelIDs, githubv4.ID(labelID))
+		}
+		input := githubv4.AddLabelsToLabelableInput{
+			LabelableID: createDisscussionMutation.CreateDiscussion.Discussion.Id,
+			LabelIDs:    labelIDs,
+		}
+
+		err = r.ghc.Mutate(ctx, &addLabelMutation, input, nil)
+		if err != nil {
+			return types.Issue{}, errors.WithStack(err)
+		}
+		zap.L().Debug("add labels to discussion", zap.Strings("label ids", issue.Labels))
+	}
+
+	// 最終的なdiscussionを取得
+	var query struct {
+		Node struct {
+			Discussion `graphql:"... on Discussion"`
+		} `graphql:"node(id: $id)"`
+	}
+
+	err = r.ghc.Query(
+		ctx,
+		&query,
+		map[string]interface{}{
+			"id": createDisscussionMutation.CreateDiscussion.Discussion.Id,
+		},
+	)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}
 
-	d := m.CreateDiscussion.Discussion.Discussion
+	d := query.Node.Discussion
+
 	meta := map[string]string{
 		categoryKey: fmt.Sprintf("%+v", d.Category.Id),
 	}
@@ -83,6 +145,7 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 		Title:      string(d.Title),
 		Body:       string(d.Body),
 		URL:        (*string)(&d.Url),
+		Labels:     d.LabelIDs(),
 		Meta:       &meta,
 	}, nil
 }
@@ -119,10 +182,11 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 		Owner:      discussionData.Owner,
 		Repository: discussionData.Repository,
 
-		Title: string(q.Repository.Discussion.Title),
-		Body:  string(q.Repository.Discussion.Body),
-		URL:   (*string)(&q.Repository.Discussion.Url),
-		Meta:  &meta,
+		Title:  string(q.Repository.Discussion.Title),
+		Body:   string(q.Repository.Discussion.Body),
+		URL:    (*string)(&q.Repository.Discussion.Url),
+		Labels: q.Repository.Discussion.LabelIDs(),
+		Meta:   &meta,
 	}, nil
 }
 
@@ -172,14 +236,15 @@ func (r *discussionRepositoryImpl) FindLastIssue(ctx context.Context, templateIs
 		Title:      string(lastDiscussion.Title),
 		Body:       string(lastDiscussion.Body),
 		URL:        (*string)(&lastDiscussion.Url),
+		Labels:     lastDiscussion.LabelIDs(),
 		Meta:       &meta,
 	}, nil
 }
 
-func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL string) (types.Issue, error) {
+func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL string) error {
 	discussionData, err := parseIssueURL(issueURL)
 	if err != nil {
-		return types.Issue{}, errors.WithStack(err)
+		return errors.WithStack(err)
 	}
 
 	var q struct {
@@ -203,7 +268,7 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 
 	err = r.ghc.Query(ctx, &q, variables)
 	if err != nil {
-		return types.Issue{}, errors.WithStack(err)
+		return errors.WithStack(err)
 	}
 
 	var archiveCategoryId githubv4.ID
@@ -214,7 +279,7 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 		}
 	}
 	if archiveCategoryId == nil {
-		return types.Issue{}, errors.New("Archive Category Not Found")
+		return errors.New("Archive Category Not Found")
 	}
 
 	var m struct {
@@ -234,21 +299,10 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 
 	err = r.ghc.Mutate(ctx, &m, input, nil)
 	if err != nil {
-		return types.Issue{}, errors.WithStack(err)
+		return errors.WithStack(err)
 	}
 
-	d := m.UpdateDiscussion.Discussion.Discussion
-	meta := map[string]string{
-		categoryKey: fmt.Sprintf("%+v", d.Category.Id),
-	}
-	return types.Issue{
-		Owner:      discussionData.Owner,
-		Repository: discussionData.Repository,
-		Title:      string(d.Title),
-		Body:       string(d.Body),
-		URL:        (*string)(&d.Url),
-		Meta:       &meta,
-	}, nil
+	return nil
 }
 
 func (r *discussionRepositoryImpl) IsValidTemplateIssue(i types.Issue) bool {
