@@ -39,3 +39,12 @@ jobs:
         go get -v -t -d ./...
     - name: make generate
       run: make generate
+  docker_build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get dependencies
+        run: |
+          docker build .
