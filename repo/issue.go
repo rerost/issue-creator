@@ -18,7 +18,7 @@ type IssueRepository interface {
 	Create(ctx context.Context, issue types.Issue) (types.Issue, error)
 	FindByURL(ctx context.Context, issueURL string) (types.Issue, error)
 	FindLastIssue(ctx context.Context, templateIssue types.Issue) (types.Issue, error)
-	CloseByURL(ctx context.Context, issueURL string) (types.Issue, error)
+	CloseByURL(ctx context.Context, issueURL string) error
 	IsValidTemplateIssue(types.Issue) bool
 }
 
@@ -138,26 +138,18 @@ var (
 	open   = "open"
 )
 
-func (ir *issueRepositoryImpl) CloseByURL(ctx context.Context, issueURL string) (types.Issue, error) {
+func (ir *issueRepositoryImpl) CloseByURL(ctx context.Context, issueURL string) error {
 	issueData, err := parseIssueURL(issueURL)
 	if err != nil {
-		return types.Issue{}, errors.WithStack(err)
+		return errors.WithStack(err)
 	}
 
-	issue, _, err := ir.ghc.Issues.Edit(ctx, issueData.Owner, issueData.Repository, issueData.IssueNumber, &github.IssueRequest{State: &closed})
+	_, _, err = ir.ghc.Issues.Edit(ctx, issueData.Owner, issueData.Repository, issueData.IssueNumber, &github.IssueRequest{State: &closed})
 	if err != nil {
-		return types.Issue{}, errors.WithStack(err)
+		return errors.WithStack(err)
 	}
 
-	return types.Issue{
-		Owner:      issueData.Owner,
-		Repository: issueData.Repository,
-
-		Title:  issue.GetTitle(),
-		Body:   issue.GetBody(),
-		URL:    issue.HTMLURL,
-		Labels: pluckName(issue.Labels),
-	}, nil
+	return nil
 }
 
 type issueURLData struct {

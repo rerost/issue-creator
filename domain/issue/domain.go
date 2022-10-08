@@ -144,7 +144,7 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 		return created, nil
 	}
 
-	_, err = r.CloseByURL(ctx, i.LastIssueURL)
+	err = r.CloseByURL(ctx, i.LastIssueURL)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}
