@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/types"
 	"github.com/shurcooL/githubv4"
+	"go.uber.org/zap"
 )
 
 const LastDiscussionNotFound = "Not Found"
@@ -89,6 +90,7 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 		if err != nil {
 			return types.Issue{}, errors.WithStack(err)
 		}
+		zap.L().Debug("created discussion", zap.String("ID", createDisscussionMutation.CreateDiscussion.Discussion.Id.(string)))
 	}
 
 	// Add Labels
@@ -111,10 +113,29 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 		if err != nil {
 			return types.Issue{}, errors.WithStack(err)
 		}
+		zap.L().Debug("add labels to discussion", zap.Strings("label ids", issue.Labels))
 	}
 
-	// FIXME: ここでdiscussionの再取得を行う
-	d := createDisscussionMutation.CreateDiscussion.Discussion.Discussion
+	// 最終的なdiscussionを取得
+	var query struct {
+		Node struct {
+			Discussion `graphql:"... on Discussion"`
+		} `graphql:"node(id: $id)"`
+	}
+
+	err = r.ghc.Query(
+		ctx,
+		&query,
+		map[string]interface{}{
+			"id": createDisscussionMutation.CreateDiscussion.Discussion.Id,
+		},
+	)
+	if err != nil {
+		return types.Issue{}, errors.WithStack(err)
+	}
+
+	d := query.Node.Discussion
+
 	meta := map[string]string{
 		categoryKey: fmt.Sprintf("%+v", d.Category.Id),
 	}
@@ -124,7 +145,7 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 		Title:      string(d.Title),
 		Body:       string(d.Body),
 		URL:        (*string)(&d.Url),
-		Labels:     d.LabelIDs(), // FIXME このdiscussionはラベル付与前なので注意が必要
+		Labels:     d.LabelIDs(),
 		Meta:       &meta,
 	}, nil
 }
