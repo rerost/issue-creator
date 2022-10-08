@@ -29,8 +29,23 @@ type (
 			Name githubv4.String
 		}
 		CreatedAt githubv4.Date
+		Labels    struct {
+			Nodes []struct {
+				Id githubv4.String
+			}
+		} `graphql:"search(first: 100)"`
 	}
 )
+
+func (d Discussion) LabelIDs() []string {
+	labelIDs := make([]string, 0, len(d.Labels.Nodes))
+
+	for _, label := range d.Labels.Nodes {
+		labelIDs = append(labelIDs, string(label.Id))
+	}
+
+	return labelIDs
+}
 
 func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue) (types.Issue, error) {
 	if issue.Meta == nil {
@@ -54,26 +69,50 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 		return types.Issue{}, errors.WithStack(err)
 	}
 
-	var m struct {
+	// Create Discussion
+	var createDisscussionMutation struct {
 		CreateDiscussion struct {
 			Discussion struct {
 				Discussion
 			}
 		} `graphql:"createDiscussion(input: $input)"`
 	}
-	input := githubv4.CreateDiscussionInput{
-		RepositoryID: q.Repository.Id,
-		Title:        githubv4.String(issue.Title),
-		Body:         githubv4.String(issue.Body),
-		CategoryID:   githubv4.String((*issue.Meta)[categoryKey]),
+	{
+		input := githubv4.CreateDiscussionInput{
+			RepositoryID: q.Repository.Id,
+			Title:        githubv4.String(issue.Title),
+			Body:         githubv4.String(issue.Body),
+			CategoryID:   githubv4.String((*issue.Meta)[categoryKey]),
+		}
+
+		err = r.ghc.Mutate(ctx, &createDisscussionMutation, input, nil)
+		if err != nil {
+			return types.Issue{}, errors.WithStack(err)
+		}
 	}
 
-	err = r.ghc.Mutate(ctx, &m, input, nil)
-	if err != nil {
-		return types.Issue{}, errors.WithStack(err)
+	// Add Labels
+	{
+		var addLabelMutation struct {
+			AddLabelsToLabelable struct{} `graphql:"addLabelsToLabelable(input $input)"`
+		}
+		labelIDs := []githubv4.ID{}
+		for _, labelID := range issue.Labels {
+			labelIDs = append(labelIDs, githubv4.ID(labelID))
+		}
+		input := githubv4.AddLabelsToLabelableInput{
+			LabelableID: createDisscussionMutation.CreateDiscussion.Discussion.Id,
+			LabelIDs:    labelIDs,
+		}
+
+		err = r.ghc.Mutate(ctx, &addLabelMutation, input, nil)
+		if err != nil {
+			return types.Issue{}, errors.WithStack(err)
+		}
 	}
 
-	d := m.CreateDiscussion.Discussion.Discussion
+	// FIXME: ここでdiscussionの再取得を行う
+	d := createDisscussionMutation.CreateDiscussion.Discussion.Discussion
 	meta := map[string]string{
 		categoryKey: fmt.Sprintf("%+v", d.Category.Id),
 	}
@@ -83,6 +122,7 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 		Title:      string(d.Title),
 		Body:       string(d.Body),
 		URL:        (*string)(&d.Url),
+		Labels:     d.LabelIDs(), // FIXME このdiscussionはラベル付与前なので注意が必要
 		Meta:       &meta,
 	}, nil
 }
@@ -119,10 +159,11 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 		Owner:      discussionData.Owner,
 		Repository: discussionData.Repository,
 
-		Title: string(q.Repository.Discussion.Title),
-		Body:  string(q.Repository.Discussion.Body),
-		URL:   (*string)(&q.Repository.Discussion.Url),
-		Meta:  &meta,
+		Title:  string(q.Repository.Discussion.Title),
+		Body:   string(q.Repository.Discussion.Body),
+		URL:    (*string)(&q.Repository.Discussion.Url),
+		Labels: q.Repository.Discussion.LabelIDs(),
+		Meta:   &meta,
 	}, nil
 }
 
@@ -172,6 +213,7 @@ func (r *discussionRepositoryImpl) FindLastIssue(ctx context.Context, templateIs
 		Title:      string(lastDiscussion.Title),
 		Body:       string(lastDiscussion.Body),
 		URL:        (*string)(&lastDiscussion.Url),
+		Labels:     lastDiscussion.LabelIDs(),
 		Meta:       &meta,
 	}, nil
 }
