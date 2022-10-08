@@ -33,7 +33,7 @@ type (
 			Nodes []struct {
 				Id githubv4.String
 			}
-		} `graphql:"search(first: 100)"`
+		} `graphql:"labels(first: 100)"`
 	}
 )
 
@@ -94,7 +94,9 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 	// Add Labels
 	{
 		var addLabelMutation struct {
-			AddLabelsToLabelable struct{} `graphql:"addLabelsToLabelable(input $input)"`
+			AddLabelsToLabelable struct {
+				ClientMutationId githubv4.String
+			} `graphql:"addLabelsToLabelable(input: $input)"`
 		}
 		labelIDs := []githubv4.ID{}
 		for _, labelID := range issue.Labels {

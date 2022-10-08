@@ -28,6 +28,7 @@ type Repository struct {
 }
 
 func (r Repository) Selector(url string) IssueRepository {
+	zap.L().Debug("Selector", zap.Bool("isDiscussion", isDiscussion(url)))
 	if isDiscussion(url) {
 		return r.discussionRepo
 	}
