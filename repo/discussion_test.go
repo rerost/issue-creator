@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/rerost/issue-creator/repo"
 	"github.com/rerost/issue-creator/types"
 	"github.com/shurcooL/githubv4"
@@ -26,7 +27,52 @@ func NewTestDiscussionRepository(ctx context.Context) repo.IssueRepository {
 
 }
 
-// TODO	TestCreate
+func TestCreate(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	testCase := []struct {
+		in  string
+		out types.Issue
+	}{
+		{
+			in: "https://github.com/rerost/issue-creator-for-test/discussions/5",
+			out: types.Issue{
+				Owner:      "rerost",
+				Repository: "issue-creator-for-test",
+				Title:      "[TEST] TestCreate",
+				Body:       "## Test\r\n## Test",
+				Labels:     []string{"LA_kwDOJt6V-s8AAAABTiHX9w"},
+				Meta:       &map[string]string{"categoryId": "DIC_kwDOJt6V-s4CXH0p"},
+			},
+		},
+	}
+
+	for _, test := range testCase {
+		test := test
+		t.Run("", func(t *testing.T) {
+			t.Parallel()
+
+			discussionRepo := NewTestDiscussionRepository(ctx)
+			issue, err := discussionRepo.FindByURL(ctx, test.in)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			res, err := discussionRepo.Create(ctx, issue)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			defer discussionRepo.CloseByURL(ctx, *res.URL)
+
+			if diff := cmp.Diff(res, test.out, cmpopts.IgnoreFields(res, "URL")); diff != "" {
+				t.Error(diff)
+				return
+			}
+		})
+	}
+}
 
 func TestFindByURL(t *testing.T) {
 	t.Parallel()
