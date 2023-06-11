@@ -37,9 +37,7 @@ func (r Repository) Selector(url string) IssueRepository {
 
 func NewRepository(githubClient *github.Client, githubGraphqlClient *githubv4.Client) Repository {
 	return Repository{
-		discussionRepo: &discussionRepositoryImpl{
-			ghc: githubGraphqlClient,
-		},
+		discussionRepo: NewDisscussionRepository(githubGraphqlClient),
 		issueRepo: &issueRepositoryImpl{
 			ghc: githubClient,
 		},

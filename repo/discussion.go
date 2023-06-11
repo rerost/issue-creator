@@ -15,6 +15,12 @@ import (
 const LastDiscussionNotFound = "Not Found"
 const categoryKey = "categoryId"
 
+func NewDisscussionRepository(ghc *githubv4.Client) *discussionRepositoryImpl {
+	return &discussionRepositoryImpl{
+		ghc: ghc,
+	}
+}
+
 type discussionRepositoryImpl struct {
 	ghc *githubv4.Client
 }
