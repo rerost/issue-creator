@@ -1,4 +1,6 @@
 # issue-creator
+[![codecov](https://codecov.io/gh/rerost/issue-creator/branch/master/graph/badge.svg?token=fh77gKdsoh)](https://codecov.io/gh/rerost/issue-creator)
+
 This is a CLI tool for automatically generating periodically created issues.
 
 e.g.
