@@ -39,6 +39,8 @@ jobs:
         go get -v -t -d ./...
     - name: Test
       run: go test -v -race -covermode=atomic -coverprofile=coverage.xml ./...
+      env:
+        TEST_TOKEN: ${{ secrets.TEST_TOKEN }}
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
   check_generate:
