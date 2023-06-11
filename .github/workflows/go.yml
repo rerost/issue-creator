@@ -23,6 +23,24 @@ jobs:
         go get -v -t -d ./...
     - name: Build issue-creator
       run: go build .
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.16
+      id: go
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+    - name: Get dependencies
+      run: |
+        go get -v -t -d ./...
+    - name: Test
+      run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
   check_generate:
     name: Check generate
     runs-on: ubuntu-latest
