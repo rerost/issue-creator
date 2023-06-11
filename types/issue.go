@@ -14,6 +14,7 @@ type Issue struct {
 	Meta         *map[string]string
 }
 
+// TODO 名前が適切でないので修正する。*github.Label -> string
 func FromGithubLabels(labels []*github.Label) []string {
 	ls := make([]string, 0, len(labels))
 	for _, label := range labels {
