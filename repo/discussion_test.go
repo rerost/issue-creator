@@ -259,7 +259,7 @@ func TestCloseByURL(t *testing.T) {
 				return
 			}
 
-			if (*oldState.Meta)["categoryId"] != (*newState.Meta)["categoryId"] && (*newState.Meta)["categoryId"] != "DIC_kwDOJt6V-s4CXH0u" /* Archive Category */ {
+			if (*newState.Meta)["categoryId"] != "DIC_kwDOJt6V-s4CXH0u" /* Archive Category */ {
 				t.Errorf("%v is not close(archived)", test.in)
 			}
 		})
