@@ -37,8 +37,8 @@ jobs:
     - name: Get dependencies
       run: |
         go get -v -t -d ./...
-    - name: Build issue-creator
-      run: go test -race -covermode=atomic -coverprofile=coverage.out
+    - name: Test
+      run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
   check_generate:
