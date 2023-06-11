@@ -5,6 +5,10 @@ e.g.
 - Template Issue: https://github.com/rerost/issue-creator/issues/1
 - Template Manifest: WIP
 
+## Breaking Change
+v0.1.x -> v0.2.x: The behavior has changed from moving to the Archive Category when closing a GitHub Discussion to simply closing the Discussion
+
+
 ## Flow
 ![image](https://user-images.githubusercontent.com/5201588/63219703-a4848b00-c1b2-11e9-90a7-aa2a4920d47b.png)
 

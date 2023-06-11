@@ -277,30 +277,16 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 		return errors.WithStack(err)
 	}
 
-	var archiveCategoryId githubv4.ID
-	for _, category := range q.Repository.DiscussionCategory.Nodes {
-		if category.Name == "Archive" {
-			archiveCategoryId = category.Id
-			break
-		}
-	}
-	if archiveCategoryId == nil {
-		return errors.New("Archive Category Not Found")
-	}
-
 	var m struct {
-		UpdateDiscussion struct {
+		CloseDiscussion struct {
 			Discussion struct {
 				Discussion
 			}
-		} `graphql:"updateDiscussion(input: $input)"`
+		} `graphql:"closeDiscussion(input: $input)"`
 	}
 
-	input := githubv4.UpdateDiscussionInput{
+	input := githubv4.CloseDiscussionInput{
 		DiscussionID: q.Repository.Discussion.Id,
-		Title:        &q.Repository.Discussion.Title,
-		Body:         &q.Repository.Discussion.Body,
-		CategoryID:   &archiveCategoryId,
 	}
 
 	err = r.ghc.Mutate(ctx, &m, input, nil)
@@ -312,9 +298,6 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 }
 
 func (r *discussionRepositoryImpl) IsValidTemplateIssue(i types.Issue) bool {
-	if i.Meta == nil {
-		return false
-	}
-	_, ok := (*i.Meta)[categoryKey]
-	return ok
+	// TODO Check label
+	return true
 }
