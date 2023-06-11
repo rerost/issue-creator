@@ -19,12 +19,52 @@ func ToPtr[T any](v T) *T {
 }
 
 func NewTestDiscussionRepository(ctx context.Context) repo.IssueRepository {
+	client := NewGithubClient(ctx)
+	return repo.NewDisscussionRepository(client)
+}
+
+func NewGithubClient(ctx context.Context) *githubv4.Client {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: os.Getenv("TEST_TOKEN")},
 	)
 	tc := oauth2.NewClient(ctx, ts)
-	return repo.NewDisscussionRepository(githubv4.NewClient(tc))
 
+	return githubv4.NewClient(tc)
+}
+
+func URLToID(ctx context.Context, githubClient *githubv4.Client, url string) (githubv4.ID, error) {
+	discussionData, err := repo.ParseIssueURL(url)
+	if err != nil {
+		return "", err
+	}
+
+	var q struct {
+		Repository struct {
+			Id                 githubv4.String
+			DiscussionCategory struct {
+				Nodes []struct {
+					Id   githubv4.ID
+					Name githubv4.String
+				}
+			} `graphql:"discussionCategories(first: 100)"`
+			Discussion struct {
+				Id githubv4.ID
+			} `graphql:"discussion(number: $number)"`
+		} `graphql:"repository(owner: $owner, name: $name)"`
+	}
+
+	variables := map[string]interface{}{
+		"number": githubv4.Int(discussionData.IssueNumber),
+		"owner":  githubv4.String(discussionData.Owner),
+		"name":   githubv4.String(discussionData.Repository),
+	}
+
+	err = githubClient.Query(ctx, &q, variables)
+	if err != nil {
+		return "", err
+	}
+
+	return q.Repository.Discussion.Id, nil
 }
 
 func TestCreate(t *testing.T) {
@@ -154,31 +194,49 @@ func TestFindLastIssue(t *testing.T) {
 	}
 }
 
-func ArchiveToGeneral(t *testing.T, ctx context.Context, url string) {
+func Reopen(t *testing.T, ctx context.Context, url string) {
 	t.Helper()
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("TEST_TOKEN")},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-	githubClient := githubv4.NewClient(tc)
+	githubClient := NewGithubClient(ctx)
 
-	discussionData, err := repo.ParseIssueURL(url)
+	id, err := URLToID(ctx, githubClient, url)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	var q struct {
-		Repository struct {
-			Id                 githubv4.String
-			DiscussionCategory struct {
-				Nodes []struct {
-					Id   githubv4.ID
-					Name githubv4.String
-				}
-			} `graphql:"discussionCategories(first: 100)"`
+	var m struct {
+		ReopenDiscussion struct {
 			Discussion struct {
 				Id githubv4.ID
+			}
+		} `graphql:"reopenDiscussion(input: $input)"`
+	}
+
+	input := githubv4.ReopenDiscussionInput{
+		DiscussionID: id,
+	}
+
+	err = githubClient.Mutate(ctx, &m, input, nil)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+func IsClosed(ctx context.Context, url string) (bool, error) {
+	githubClient := NewGithubClient(ctx)
+
+	discussionData, err := repo.ParseIssueURL(url)
+	if err != nil {
+		return false, err
+	}
+
+	var q struct {
+		Repository struct {
+			Id         githubv4.String
+			Discussion struct {
+				Id     githubv4.ID
+				Closed *githubv4.Boolean
 			} `graphql:"discussion(number: $number)"`
 		} `graphql:"repository(owner: $owner, name: $name)"`
 	}
@@ -191,28 +249,10 @@ func ArchiveToGeneral(t *testing.T, ctx context.Context, url string) {
 
 	err = githubClient.Query(ctx, &q, variables)
 	if err != nil {
-		t.Error(err)
-		return
+		return false, err
 	}
 
-	var m struct {
-		UpdateDiscussion struct {
-			Discussion struct {
-				Id githubv4.ID
-			}
-		} `graphql:"updateDiscussion(input: $input)"`
-	}
-
-	input := githubv4.UpdateDiscussionInput{
-		DiscussionID: q.Repository.Discussion.Id,
-		CategoryID:   githubv4.NewID("DIC_kwDOJt6V-s4CXH0p"), /* General Category */
-	}
-
-	err = githubClient.Mutate(ctx, &m, input, nil)
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	return (bool)(*q.Repository.Discussion.Closed), nil
 }
 
 // WARNING: https://github.com/rerost/issue-creator-for-test の状態が変わるので、並列でこのテストが走ると問題になる
@@ -235,15 +275,14 @@ func TestCloseByURL(t *testing.T) {
 			t.Parallel()
 
 			discussionRepo := NewTestDiscussionRepository(ctx)
-			oldState, err := discussionRepo.FindByURL(ctx, test.in)
+			// validate
+			isClosed, err := IsClosed(ctx, test.in)
 			if err != nil {
 				t.Error(err)
 				return
 			}
-			// validate
-			if (*oldState.Meta)["categoryId"] != "DIC_kwDOJt6V-s4CXH0p" /* General Category */ {
-				t.Errorf("%v is not valid state", test.in)
-				return
+			if isClosed {
+				t.Errorf("%v is already closed", test.in)
 			}
 
 			err = discussionRepo.CloseByURL(ctx, test.in)
@@ -251,16 +290,15 @@ func TestCloseByURL(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			defer ArchiveToGeneral(t, ctx, test.in)
+			defer Reopen(t, ctx, test.in)
 
-			newState, err := discussionRepo.FindByURL(ctx, test.in)
+			isClosed, err = IsClosed(ctx, test.in)
 			if err != nil {
 				t.Error(err)
 				return
 			}
-
-			if (*newState.Meta)["categoryId"] != "DIC_kwDOJt6V-s4CXH0u" /* Archive Category */ {
-				t.Errorf("%v is not close(archived)", test.in)
+			if !isClosed {
+				t.Errorf("%v is not close", test.in)
 			}
 		})
 	}
@@ -277,7 +315,7 @@ func TestIsValidTemplateIssue(t *testing.T) {
 			in: types.Issue{
 				Meta: nil,
 			},
-			out: false,
+			out: true,
 		},
 		{
 			in: types.Issue{
