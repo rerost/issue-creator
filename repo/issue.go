@@ -73,7 +73,7 @@ func (ir *issueRepositoryImpl) Create(ctx context.Context, issue types.Issue) (t
 }
 
 func (ir *issueRepositoryImpl) FindByURL(ctx context.Context, issueURL string) (types.Issue, error) {
-	issueData, err := parseIssueURL(issueURL)
+	issueData, err := ParseIssueURL(issueURL)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}
@@ -138,7 +138,7 @@ var (
 )
 
 func (ir *issueRepositoryImpl) CloseByURL(ctx context.Context, issueURL string) error {
-	issueData, err := parseIssueURL(issueURL)
+	issueData, err := ParseIssueURL(issueURL)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -157,7 +157,7 @@ type issueURLData struct {
 	IssueNumber int
 }
 
-func parseIssueURL(u string) (issueURLData, error) {
+func ParseIssueURL(u string) (issueURLData, error) {
 	pu, err := url.Parse(u)
 	if err != nil {
 		return issueURLData{}, errors.WithStack(err)

@@ -157,7 +157,7 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 }
 
 func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL string) (types.Issue, error) {
-	discussionData, err := parseIssueURL(issueURL)
+	discussionData, err := ParseIssueURL(issueURL)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}
@@ -248,7 +248,7 @@ func (r *discussionRepositoryImpl) FindLastIssue(ctx context.Context, templateIs
 }
 
 func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL string) error {
-	discussionData, err := parseIssueURL(issueURL)
+	discussionData, err := ParseIssueURL(issueURL)
 	if err != nil {
 		return errors.WithStack(err)
 	}
