@@ -33,11 +33,6 @@ issue-creator schedule apply '30 5 * * 1' https://github.com/rerost/issue-creato
 ```
 
 ## Discussion
-**Experimental**
-
-Please create 'Archive' discussion category before create discussion by issue-creator.  
-e.g. https://github.com/rerost/issue-creator/discussions/categories/archive  
-
 ```
 issue-creator create https://github.com/rerost/issue-creator/discussions/48
 ```
