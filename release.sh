@@ -14,7 +14,7 @@ echo "tag: $tag"
 git checkout master
 git pull origin master
 # Only mac
-sed -i '' 's/TAG/new_string/g' Dockerfile.actions
+sed -i '' "s/TAG/$tag/g" Dockerfile.actions
 git add Dockerfile.actions
 git commit -m "Generate docker file"
 git push origin master
