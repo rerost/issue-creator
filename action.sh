@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 repository=$1
 template_issue=$2
@@ -16,7 +16,7 @@ fi
 url=https://github.com/${repository}/${type}/${template_issue}
 echo ${url}
 
-issue-creator \
+./issue-creator \
   create \
   ${url} \
   --CloseLastIssue=${close_last_issue} \
