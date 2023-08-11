@@ -20,7 +20,7 @@ inputs:
     default: ${{ github.repository }}
 runs:
   using: "docker"
-  image: 'rerost/issue-creator@sha256:a27341a35933d82735fc2e6ec0ac23b159a8b319c18d49cd1396f241d0ee9569' # commit: https://github.com/rerost/issue-creator/pull/108/commits/14fab538950c46f91b81e4e2037e4e2abf5d5f1c
+  image: 'Dockerfile.actions'
   args:
     - ${{ inputs.repository }}
     - ${{ inputs.template-issue }}
