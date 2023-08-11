@@ -17,7 +17,6 @@ git pull origin master
 sed -i '' "s/TAG/$tag/g" Dockerfile.actions
 git add Dockerfile.actions
 git commit -m "Generate docker file"
-git push origin master
 git tag -a $tag -m "$tag"
 git push origin $tag
 git reset HEAD^ --hard # clean
