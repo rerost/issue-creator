@@ -1,1 +1,1 @@
-FROM ghcr.io/rerost/issue-creator@TAG
+FROM ghcr.io/rerost/issue-creator:TAG
