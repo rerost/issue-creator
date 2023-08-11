@@ -7,7 +7,7 @@ COPY go.sum .
 RUN go mod download
 
 COPY . .
-RUN go build -o issue-creator
+RUN go build -o /issue-creator
 
 COPY action.sh /action.sh
 
