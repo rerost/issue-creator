@@ -20,7 +20,7 @@ inputs:
     default: ${{ github.repository }}
 runs:
   using: "docker"
-  image: 'ghcr.io/rerost/issue-creator:master'
+  image: 'ghcr.io/rerost/issue-creator@sha256:8e6929e4bc157a5ad19b4f0c81de3518f29d3250af9569b8681522849a1eb447' # commit_hash: 91e3b4b67ebfdd2709d531866ff68b15f76808dc
   args:
     - ${{ inputs.repository }}
     - ${{ inputs.template-issue }}
