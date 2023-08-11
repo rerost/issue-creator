@@ -20,7 +20,7 @@ inputs:
     default: ${{ github.repository }}
 runs:
   using: "docker"
-  image: 'Dockerfile'
+  image: 'ghcr.io/rerost/issue-creator:master'
   args:
     - ${{ inputs.repository }}
     - ${{ inputs.template-issue }}
