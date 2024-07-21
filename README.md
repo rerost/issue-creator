@@ -55,3 +55,10 @@ jobs:
           discussion: true # Required if you want to create a discussion
 ```
 
+## Development
+### Release
+```bash
+$ ./release.sh <TAG>
+
+// e.g `./release.sh v0.3.1`
+```
