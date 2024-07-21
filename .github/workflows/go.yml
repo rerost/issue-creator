@@ -89,6 +89,6 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           version: latest
-          args: check
+          args: release --skip=publish --clean --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
