@@ -16,7 +16,7 @@ v0.1.x -> v0.2.x: The behavior has changed from moving to the Archive Category w
 
 ## Install
 ```
-$ GO111MODULE=on go get github.com/rerost/issue-creator
+$ go install github.com/rerost/issue-creator@latest
 $ issue-creator
 ```
 
