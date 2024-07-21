@@ -62,3 +62,6 @@ $ ./release.sh <TAG>
 
 // e.g `./release.sh v0.3.1`
 ```
+
+### Update token
+https://github.com/rerost/issue-creator/issues/111
