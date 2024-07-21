@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -292,6 +293,7 @@ func TestCloseByURL(t *testing.T) {
 			}
 			defer Reopen(t, ctx, test.in)
 
+			time.Sleep(1 * time.Second)
 			isClosed, err = IsClosed(ctx, test.in)
 			if err != nil {
 				t.Error(err)
