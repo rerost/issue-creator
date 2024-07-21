@@ -44,7 +44,7 @@ jobs:
       with:
         go-version-file: 'go.mod'
     - name: make generate
-      run: make generate
+      run: go generate ./...
   # https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
   docker_build_and_push:
     name: Docker Build and Push
