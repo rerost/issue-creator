@@ -22,5 +22,5 @@ git add Dockerfile.actions
 git commit -m "Generate docker file"
 git tag -a $tag -m "$tag"
 git push origin $tag
-git branch -d releaser/$current_commit
-git reset HEAD^ --hard # clean
+git checkout master
+git branch -D releaser/$current_commit
