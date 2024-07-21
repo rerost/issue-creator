@@ -3,7 +3,7 @@ export PATH := ${BIN_DIR}:${PATH}
 
 PHONY: setup
 setup:
-	GO111MODULE=off go get github.com/izumin5210/gex/cmd/gex
+	go install github.com/izumin5210/gex/cmd/gex@v0.6.1
 	gex --build
 
 PHONY: generate
