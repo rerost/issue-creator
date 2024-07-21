@@ -36,8 +36,8 @@ changelog:
       - '^docs:'
       - '^test:'
 brews:
-  - tap:
+  - repository:
       owner: rerost
       name: homebrew-tools
-    folder: Formula
+    directory: Formula
     homepage: https://github.com/rerost/issue-creator

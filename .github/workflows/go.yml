@@ -73,3 +73,22 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  check-goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      -
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+      -
+        name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
