@@ -11,6 +11,10 @@ tag=$1
 
 echo "tag: $tag"
 
+# On master
+git checkout master
+git pull origin master
+
 # Create Dockerfile
 # Actions が利用できるDocker Imageの制限に対応するため。 https://stackoverflow.com/questions/76403845/when-accessing-github-marketplace-actions-i-am-seeing-getting-error-should-be-e 
 echo "FROM ghcr.io/rerost/issue-creator:${tag}" > Dockerfile.actions
