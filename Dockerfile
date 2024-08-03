@@ -6,8 +6,7 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-COPY . .
-RUN go build -o /issue-creator
+RUN --mount=type=bind,target=. go build -o /issue-creator
 
 FROM alpine:3.18.3
 
