@@ -107,6 +107,7 @@ func (ir *issueRepositoryImpl) FindLastIssue(ctx context.Context, templateIssue 
 		labelsQueries,
 		fmt.Sprintf("repo:%s/%s", templateIssue.Owner, templateIssue.Repository),
 		"sort:created-desc",
+		"is:issue",
 	)
 	githubSearchQuery := strings.Join(queries, " ")
 	zap.L().Debug("query", zap.String("github_search_query", githubSearchQuery))
