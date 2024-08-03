@@ -25,4 +25,4 @@ git push origin master
 # Create Tag
 git tag -a $tag -m "$tag"
 git push origin $tag
-echo "RELASED"
+echo "RELEASED"
