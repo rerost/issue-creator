@@ -47,6 +47,7 @@ func Run() error {
 
 	if err := cmd.Execute(); err != nil {
 		zap.L().Debug("error", zap.String("stack trace", fmt.Sprintf("%+v\n", err)))
+		return errors.WithStack(err)
 	}
 	return nil
 }
