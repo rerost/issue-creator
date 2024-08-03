@@ -46,6 +46,17 @@ jobs:
     - name: make generate
       run: go generate ./...
   # https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
+  docker_image_test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Check # Run https://github.com/rerost/issue-creator/blob/bf8f39be0ca7d96d22d2f946b20360978c80ea9f/action.yml#L21
+      run: |
+        docker build -t test .
+        docker run test rerost/issue-creator-for-test 102 true "echo 'OK'" $TEST_TOKEN false
+      env:
+        TEST_TOKEN: ${{ secrets.TEST_TOKEN }}
   docker_build_and_push:
     name: Docker Build and Push
     runs-on: ubuntu-latest
