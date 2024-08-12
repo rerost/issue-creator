@@ -65,7 +65,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
@@ -85,18 +85,11 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
   check-goreleaser:
+    name: GoReleaser Check
     runs-on: ubuntu-latest
     steps:
-      -
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      -
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: 'go.mod'
-      -
-        name: Run GoReleaser
+      - uses: actions/checkout@v4
+      - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           version: latest
