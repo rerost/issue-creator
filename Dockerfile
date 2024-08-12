@@ -9,7 +9,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/,sharing=locked \
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,target=. \
-    go build -o /issue-creator
+    go build -ldflags="-s -w" -trimpath -o issue-creator .
 
 FROM alpine:3.18.3
 
