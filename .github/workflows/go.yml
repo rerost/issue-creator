@@ -27,8 +27,6 @@ jobs:
     - uses: actions/setup-go@v5
       with:
         go-version-file: 'go.mod'
-    - name: Build issue-creator
-      run: go build .
     - name: Test
       run: go test -v -race -covermode=atomic -coverprofile=coverage.xml ./...
       env:
