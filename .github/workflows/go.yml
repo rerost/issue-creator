@@ -28,11 +28,13 @@ jobs:
       with:
         go-version-file: 'go.mod'
     - name: Test
-      run: go test -v -race -covermode=atomic -coverprofile=coverage.xml ./...
+      run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
       env:
         TEST_TOKEN: ${{ secrets.TEST_TOKEN }}
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
   check_generate:
     name: Check generate
     runs-on: ubuntu-latest
