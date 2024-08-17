@@ -96,12 +96,12 @@ func TestIssueIsValidTemplateIssue(t *testing.T) {
 
 	url := "https://github.com/rerost/issue-creator-for-test/issues/336"
 
-	issue, err := repo.FindLastIssue(ctx, url)
+	issue, err := repo.FindByURL(ctx, url)
 	if err != nil {
 		t.Error(err)
 	}
 
-	res := repo.IsValidTemplateIssue(ctx, issue)
+	res := repo.IsValidTemplateIssue(issue)
 
 	if diff := cmp.Diff(res, true); diff != "" {
 		t.Error(diff)
