@@ -1,6 +1,6 @@
 module github.com/rerost/issue-creator
 
-go 1.22
+go 1.23
 
 require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
