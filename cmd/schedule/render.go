@@ -3,7 +3,7 @@ package schedule
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/domain/schedule"
@@ -18,7 +18,7 @@ func NewRenderCommand(ctx context.Context, templateFilePath string, srv schedule
 		Args:  cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
 			zap.L().Debug("template path", zap.String("templateFilePath", templateFilePath))
-			b, err := ioutil.ReadFile(templateFilePath)
+			b, err := os.ReadFile(templateFilePath)
 			if err != nil {
 				errors.WithStack(err)
 			}

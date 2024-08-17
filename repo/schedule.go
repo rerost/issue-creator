@@ -2,7 +2,6 @@ package repo
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -31,7 +30,7 @@ func (s *scheduleRepositoryImpl) Apply(ctx context.Context, manifest string) err
 	if err != nil {
 		return errors.Wrap(err, "Failed to get current dir")
 	}
-	manifestFile, err := ioutil.TempFile(currentDir, "schedule.yaml")
+	manifestFile, err := os.CreateTemp(currentDir, "schedule.yaml")
 	if err != nil {
 		return errors.Wrap(err, "Failed to create temp file")
 	}
