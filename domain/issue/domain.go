@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"os/exec"
 	"text/template"
 	"time"
@@ -117,7 +117,7 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 	}
 
 	if is.checkBeforeCreateIssue != nil && *is.checkBeforeCreateIssue != "" {
-		f, err := ioutil.TempFile("", "issue_creator_*.sh")
+		f, err := os.CreateTemp("", "issue_creator_*.sh")
 		if err != nil {
 			return types.Issue{}, errors.WithStack(err)
 		}
