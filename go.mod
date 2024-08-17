@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.6.0
 	github.com/google/go-github/v37 v37.0.0
 	github.com/google/wire v0.6.0
 	github.com/pkg/errors v0.9.1
