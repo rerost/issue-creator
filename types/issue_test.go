@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v37/github"
+	"github.com/google/go-github/v63/github"
 	"github.com/rerost/issue-creator/types"
 )
 
