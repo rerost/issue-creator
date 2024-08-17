@@ -88,3 +88,22 @@ func TestIssueFindLastIssue(t *testing.T) {
 		t.Error(diff)
 	}
 }
+
+func TestIssueIsValidTemplateIssue(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	repo := NewTestIssueRepository(ctx)
+
+	url := "https://github.com/rerost/issue-creator-for-test/issues/336"
+
+	issue, err := repo.FindLastIssue(ctx, url)
+	if err != nil {
+		t.Error(err)
+	}
+
+	res := repo.IsValidTemplateIssue(ctx, issue)
+
+	if diff := cmp.Diff(res, true); diff != "" {
+		t.Error(diff)
+	}
+}
