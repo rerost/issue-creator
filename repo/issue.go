@@ -189,18 +189,6 @@ func (r *issueRepositoryImpl) IsValidTemplateIssue(i types.Issue) bool {
 	return len(i.Labels) != 0
 }
 
-func pluckName(gl []*github.Label) []string {
-	res := []string{}
-	for _, l := range gl {
-		if l == nil {
-			continue
-		}
-		res = append(res, *l.Name) // I believe name is not null
-	}
-
-	return res
-}
-
 func isDiscussion(templateIssueURL string) bool {
 	pu, err := url.Parse(templateIssueURL)
 	if err != nil {
