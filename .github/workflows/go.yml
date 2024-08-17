@@ -35,16 +35,6 @@ jobs:
       uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-  check_generate:
-    name: Check generate
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-go@v5
-      with:
-        go-version-file: 'go.mod'
-    - name: make generate
-      run: go generate ./...
   # https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
   docker_image_test:
     runs-on: ubuntu-latest
@@ -86,15 +76,32 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  check-generate:
+    name: Check Go Generate
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: 'go.mod'
+    - name: Check Go Generate
+      run: go generate ./...
   check-goreleaser:
-    name: GoReleaser Check
+    name: Check GoReleaser
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run GoReleaser
+      - name: Check GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           version: latest
           args: check
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+  check-renovate-config:
+    name: GoReleaser Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Renovate config
+        run: npx --yes --package renovate -- renovate-config-validator --strict
