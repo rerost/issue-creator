@@ -46,15 +46,15 @@ func TestIssueFindByURL(t *testing.T) {
 	ctx := context.Background()
 	repo := NewTestIssueRepository(ctx)
 
-	url := "https://github.com/rerost/issue-creator-for-test/issues/102"
+	url := "https://github.com/rerost/issue-creator-for-test/issues/336"
 
 	out := types.Issue{
 		Owner:      "rerost",
 		Repository: "issue-creator-for-test",
-		Title:      "Test for Docker",
+		Title:      "Test for CI 1",
 		Body:       "test",
-		Labels:     []string{"test-for-docker"},
-		URL:        ToPtr("https://github.com/rerost/issue-creator-for-test/issues/102"),
+		Labels:     []string{"test-for-ci-1"},
+		URL:        ToPtr("https://github.com/rerost/issue-creator-for-test/issues/336"),
 	}
 
 	res, err := repo.FindByURL(ctx, url)
@@ -63,6 +63,28 @@ func TestIssueFindByURL(t *testing.T) {
 	}
 
 	if diff := cmp.Diff(res, out); diff != "" {
+		t.Error(diff)
+	}
+}
+
+func TestIssueFindLastIssue(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	repo := NewTestIssueRepository(ctx)
+
+	url := "https://github.com/rerost/issue-creator-for-test/issues/336"
+
+	issue, err := repo.FindByURL(ctx, url)
+	if err != nil {
+		t.Error(err)
+	}
+
+	res, err := repo.FindLastIssue(ctx, issue)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if diff := cmp.Diff(res, issue); diff != "" {
 		t.Error(diff)
 	}
 }
