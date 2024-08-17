@@ -4,7 +4,8 @@
     "config:recommended"
   ],
   "postUpdateOptions": [
-    "gomodTidy"
+    "gomodTidy",
+    "gomodUpdateImportPaths"
   ],
   "packageRules": [
     {
