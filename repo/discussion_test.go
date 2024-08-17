@@ -3,7 +3,6 @@ package repo_test
 import (
 	"context"
 	_ "embed"
-	"os"
 	"testing"
 	"time"
 
@@ -12,7 +11,6 @@ import (
 	"github.com/rerost/issue-creator/repo"
 	"github.com/rerost/issue-creator/types"
 	"github.com/shurcooL/githubv4"
-	"golang.org/x/oauth2"
 )
 
 func ToPtr[T any](v T) *T {
@@ -20,17 +18,8 @@ func ToPtr[T any](v T) *T {
 }
 
 func NewTestDiscussionRepository(ctx context.Context) repo.IssueRepository {
-	client := NewGithubClient(ctx)
+	client := NewGithubGraphQLClient(ctx)
 	return repo.NewDisscussionRepository(client)
-}
-
-func NewGithubClient(ctx context.Context) *githubv4.Client {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("TEST_TOKEN")},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-
-	return githubv4.NewClient(tc)
 }
 
 func URLToID(ctx context.Context, githubClient *githubv4.Client, url string) (githubv4.ID, error) {
@@ -197,7 +186,7 @@ func TestFindLastIssue(t *testing.T) {
 
 func Reopen(t *testing.T, ctx context.Context, url string) {
 	t.Helper()
-	githubClient := NewGithubClient(ctx)
+	githubClient := NewGithubGraphQLClient(ctx)
 
 	id, err := URLToID(ctx, githubClient, url)
 	if err != nil {
@@ -225,7 +214,7 @@ func Reopen(t *testing.T, ctx context.Context, url string) {
 }
 
 func IsClosed(ctx context.Context, url string) (bool, error) {
-	githubClient := NewGithubClient(ctx)
+	githubClient := NewGithubGraphQLClient(ctx)
 
 	discussionData, err := repo.ParseIssueURL(url)
 	if err != nil {
