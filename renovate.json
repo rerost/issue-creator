@@ -3,8 +3,11 @@
   "extends": [
     "config:recommended"
   ],
+  "timezone": "Japan",
+  "schedule": ["every weekend"],
   "postUpdateOptions": [
-    "gomodTidy"
+    "gomodTidy",
+    "gomodUpdateImportPaths"
   ],
   "packageRules": [
     {
