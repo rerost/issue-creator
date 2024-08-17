@@ -32,7 +32,7 @@ jobs:
       env:
         TEST_TOKEN: ${{ secrets.TEST_TOKEN }}
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
   check_generate:
     name: Check generate
     runs-on: ubuntu-latest
