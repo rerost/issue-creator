@@ -56,7 +56,7 @@ jobs:
     - name: Check # Run https://github.com/rerost/issue-creator/blob/bf8f39be0ca7d96d22d2f946b20360978c80ea9f/action.yml#L21
     # https://github.com/rerost/issue-creator-for-test/issues/102 を元にissueを作るテスト
       run: |
-        docker build -t test --cache-from=type=gha .
+        docker build -t test --cache-from type=gha cache-to type=gha,mode=max .
         docker run test rerost/issue-creator-for-test 102 true "echo 'OK'" $TEST_TOKEN false
       env:
         TEST_TOKEN: ${{ secrets.TEST_TOKEN }}
