@@ -47,7 +47,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-    - name: Build and push Docker image
+    - name: Build and Docker image
       uses: docker/build-push-action@v6
       with:
         context: .
@@ -58,7 +58,7 @@ jobs:
     - name: Check # Run https://github.com/rerost/issue-creator/blob/bf8f39be0ca7d96d22d2f946b20360978c80ea9f/action.yml#L21
     # https://github.com/rerost/issue-creator-for-test/issues/102 を元にissueを作るテスト
       run: |
-        docker run test rerost/issue-creator-for-test 102 true "echo 'OK'" $TEST_TOKEN false
+        docker run test:latest rerost/issue-creator-for-test 102 true "echo 'OK'" $TEST_TOKEN false
       env:
         TEST_TOKEN: ${{ secrets.TEST_TOKEN }}
   docker_build_and_push:
