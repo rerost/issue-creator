@@ -2,14 +2,12 @@ FROM golang:1.23-alpine AS builder
 
 WORKDIR $GOPATH/src/github.com/rerost/issue-creator
 
-RUN --mount=type=cache,target=/go/pkg/mod/,sharing=locked \
-    --mount=type=bind,source=go.sum,target=go.sum \
-    --mount=type=bind,source=go.mod,target=go.mod \
-    go mod download
+COPY go.mod go.mod
+COPY go.sum go.sum
+RUN go mod download
 
-RUN --mount=type=cache,target=/go/pkg/mod/ \
-    --mount=type=bind,target=. \
-    go build -ldflags="-s -w" -trimpath -o /issue-creator .
+COPY . .
+RUN go build -ldflags="-s -w" -trimpath -o /issue-creator .
 
 FROM alpine:3.20.2
 
