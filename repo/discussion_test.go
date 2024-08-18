@@ -4,7 +4,6 @@ import (
 	"context"
 	_ "embed"
 	"testing"
-	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -245,17 +244,22 @@ func IsClosed(ctx context.Context, url string) (bool, error) {
 	return (bool)(*q.Repository.Discussion.Closed), nil
 }
 
-// WARNING: https://github.com/rerost/issue-creator-for-test の状態が変わるので、並列でこのテストが走ると問題になる
 func TestCloseByURL(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	// MEMO: インターフェースとしてはissueの中身までチェックするのが正しいが、挙動としては1つ前のissueということだけが重要なのでそこに絞ってテストしている
 	testCase := []struct {
-		in  string
+		in  types.Issue
 		out string
 	}{
 		{
-			in: "https://github.com/rerost/issue-creator-for-test/discussions/4",
+			in: types.Issue{
+				Owner:      "rerost",
+				Repository: "issue-creator-for-test",
+				Title:      "Test",
+				Body:       "Test Discussion",
+				Meta:       &map[string]string{"categoryId": "DIC_kwDOJt6V-s4CXH0p"},
+			},
 		},
 	}
 
@@ -265,25 +269,19 @@ func TestCloseByURL(t *testing.T) {
 			t.Parallel()
 
 			discussionRepo := NewTestDiscussionRepository(ctx)
-			// validate
-			isClosed, err := IsClosed(ctx, test.in)
+			testIssue, err := discussionRepo.Create(ctx, test.in)
 			if err != nil {
 				t.Error(err)
 				return
 			}
-			if isClosed {
-				t.Errorf("%v is already closed", test.in)
-			}
 
-			err = discussionRepo.CloseByURL(ctx, test.in)
+			err = discussionRepo.CloseByURL(ctx, *testIssue.URL)
 			if err != nil {
 				t.Error(err)
 				return
 			}
-			defer Reopen(t, ctx, test.in)
 
-			time.Sleep(1 * time.Second)
-			isClosed, err = IsClosed(ctx, test.in)
+			isClosed, err := IsClosed(ctx, *testIssue.URL)
 			if err != nil {
 				t.Error(err)
 				return
