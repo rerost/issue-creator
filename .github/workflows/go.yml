@@ -52,7 +52,7 @@ jobs:
       with:
         context: .
         push: false
-        tags: test
+        tags: test:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
     - name: Check # Run https://github.com/rerost/issue-creator/blob/bf8f39be0ca7d96d22d2f946b20360978c80ea9f/action.yml#L21
