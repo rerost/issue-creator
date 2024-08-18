@@ -76,6 +76,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-fron: type=gha
+          cache-to: type=gha,mode=max
   check-generate:
     name: Check Go Generate
     runs-on: ubuntu-latest
