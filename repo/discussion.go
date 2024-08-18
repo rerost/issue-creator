@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/types"
@@ -128,6 +129,10 @@ func (r *discussionRepositoryImpl) Create(ctx context.Context, issue types.Issue
 			Discussion `graphql:"... on Discussion"`
 		} `graphql:"node(id: $id)"`
 	}
+
+	// Discussion作成 -> ラベル付与 -> Discussionの取得という流れだが、たまにラベルが付与される前のDiscussionを読み取る場合がある
+	// そのためのSleep
+	time.Sleep(time.Second)
 
 	err = r.ghc.Query(
 		ctx,
