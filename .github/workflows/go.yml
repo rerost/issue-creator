@@ -85,7 +85,7 @@ jobs:
       with:
         go-version-file: 'go.mod'
     - name: Check Go Generate
-      run: go generate ./...
+      run: go generate ./... && go mod tidy && git diff --exit-code
   check-goreleaser:
     name: Check GoReleaser
     runs-on: ubuntu-latest
