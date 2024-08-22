@@ -1,4 +1,5 @@
-//+build wireinject
+//go:build wireinject
+// +build wireinject
 
 package cmd
 
@@ -6,7 +7,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/go-github/v63/github"
+	"github.com/google/go-github/v64/github"
 	"github.com/google/wire"
 	"github.com/rerost/issue-creator/domain/issue"
 	"github.com/rerost/issue-creator/domain/schedule"
