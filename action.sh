@@ -2,11 +2,11 @@
 
 url=$1
 close_last_issue=$4
+check_before_create_issue=$5
 token=$6
 if [ -z $url ]; then
   repository=$2
   template_issue=$3
-  check_before_create_issue=$5
   is_discussion=$7
 
   type="issues"
