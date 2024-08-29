@@ -3,12 +3,7 @@ description: 'Periodically create GitHub issue'
 inputs:
   template-issue:
     description: 'Specify the issue number of the template in the repository. e.g. 1'
-    default: ""
-    required: false
-  template-issue-url:
-    description: 'Specify the issue url of the template. e.g. https://github.com/rerost/issue-creator/issues/1'
-    default: ""
-    required: false
+    required: true
   close-last-issue:
     description: 'If true, issue-creator closes the previous issue.'
     default: true
@@ -27,7 +22,6 @@ runs:
   using: "docker"
   image: 'Dockerfile.actions'
   args:
-    - ${{ inputs.template-issue-url }}
     - ${{ inputs.repository }}
     - ${{ inputs.template-issue }}
     - ${{ inputs.close-last-issue }}
