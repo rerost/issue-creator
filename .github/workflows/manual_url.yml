@@ -1,0 +1,12 @@
+name: "Check actions work for url"
+on: workflow_dispatch
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          template-issue-url: https://github.com/rerost/issue-creator/issues/1
+          close-last-issue: true
