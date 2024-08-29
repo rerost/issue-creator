@@ -1,19 +1,22 @@
 #!/bin/sh
 
-repository=$1
-template_issue=$2
-close_last_issue=$3
-check_before_create_issue=$4
-token=$5
-is_discussion=$6
+url=$1
+close_last_issue=$4
+check_before_create_issue=$5
+token=$6
+if [ -z $url ]; then
+  repository=$2
+  template_issue=$3
+  is_discussion=$7
 
-type="issues"
+  type="issues"
 
-if [ "${is_discussion}" = "true" ]; then
-  type="discussions"
+  if [ "${is_discussion}" = "true" ]; then
+    type="discussions"
+  fi
+
+  url=https://github.com/${repository}/${type}/${template_issue}
 fi
-
-url=https://github.com/${repository}/${type}/${template_issue}
 echo ${url}
 
 /issue-creator \

@@ -49,10 +49,27 @@ jobs:
   create-issue:
     runs-on: ubuntu-latest
     steps:
-      - uses: rerost/issue-creator@v0.3.4
+      - uses: rerost/issue-creator@v0.4
         with:
           template-issue: 1 # https://github.com/rerost/issue-creator/issues/1
           discussion: true # Required if you want to create a discussion
+```
+
+or
+
+```
+on:
+  schedule:
+    - cron: "0 0 * * MON"
+  workflow_dispatch: {}
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: rerost/issue-creator@v0.4
+        with:
+          template-issue-url: https://github.com/rerost/issue-creator/issues/1
 ```
 
 ## Development
