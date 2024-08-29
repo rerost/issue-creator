@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -ex
+
 url=$1
 close_last_issue=$4
 check_before_create_issue=$5
