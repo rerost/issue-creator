@@ -20,7 +20,7 @@ func NewApplyCommand(ctx context.Context, templateFilePath string, srv schedule.
 		RunE: func(_ *cobra.Command, args []string) error {
 			b, err := os.ReadFile(templateFilePath)
 			if err != nil {
-				errors.WithStack(err)
+				return errors.WithStack(err)
 			}
 
 			templateFile := string(b)

@@ -80,14 +80,14 @@ func (is *issueServiceImpl) render(ctx context.Context, templateIssueURL string)
 	if err != nil {
 		return types.Issue{}, errors.Wrap(err, "Failed to render title")
 	}
-	title := string(tw.Bytes())
+	title := tw.String()
 
 	bw := bytes.NewBufferString("")
 	err = bodyTmpl.Execute(bw, TemplateData{CurrentTime: is.ct, LastIssue: lastIssue, AddDay: func(d int) time.Time { return is.ct.AddDate(0, 0, d) }})
 	if err != nil {
 		return types.Issue{}, errors.Wrap(err, "Failed to render body")
 	}
-	body := string(bw.Bytes())
+	body := bw.String()
 
 	if lastIssue.URL == nil {
 		return types.Issue{}, errors.New("Invalid last issue passed(empty URL)")
@@ -126,7 +126,10 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 		if err != nil {
 			return types.Issue{}, errors.WithStack(err)
 		}
-		f.Chmod(0755)
+		err = f.Chmod(0755)
+		if err != nil {
+			return types.Issue{}, errors.WithStack(err)
+		}
 		f.Close()
 
 		out, err := exec.Command("sh", f.Name()).Output()

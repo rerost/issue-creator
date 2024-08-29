@@ -135,7 +135,6 @@ func (ir *issueRepositoryImpl) FindLastIssue(ctx context.Context, templateIssue 
 var (
 	// State
 	closed = "closed"
-	open   = "open"
 )
 
 func (ir *issueRepositoryImpl) CloseByURL(ctx context.Context, issueURL string) error {

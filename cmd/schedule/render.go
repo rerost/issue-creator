@@ -20,7 +20,7 @@ func NewRenderCommand(ctx context.Context, templateFilePath string, srv schedule
 			zap.L().Debug("template path", zap.String("templateFilePath", templateFilePath))
 			b, err := os.ReadFile(templateFilePath)
 			if err != nil {
-				errors.WithStack(err)
+				return errors.WithStack(err)
 			}
 
 			templateFile := string(b)
