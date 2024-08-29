@@ -74,10 +74,13 @@ func NewConfig() (Config, error) {
 	pflag.StringP("check-before-create-issue", "", "", "")
 
 	viper.AutomaticEnv()
-	viper.BindPFlags(pflag.CommandLine)
+	err := viper.BindPFlags(pflag.CommandLine)
+	if err != nil {
+		return Config{}, errors.WithStack(err)
+	}
 
 	var cfg Config
 	pflag.Parse()
-	err := viper.Unmarshal(&cfg)
+	err = viper.Unmarshal(&cfg)
 	return cfg, errors.WithStack(err)
 }
