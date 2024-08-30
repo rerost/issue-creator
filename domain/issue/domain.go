@@ -135,7 +135,7 @@ func (is *issueServiceImpl) Create(ctx context.Context, templateURL string) (typ
 		out, err := exec.Command("sh", f.Name()).Output()
 		if err != nil {
 			zap.L().Error("Failed to exec check before create issue", zap.String("out", string(out)), zap.String("err", err.Error()))
-			return types.Issue{}, errors.WithStack(err)
+			return types.Issue{}, nil
 		}
 	}
 	created, err := r.Create(ctx, i)
