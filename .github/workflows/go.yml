@@ -40,6 +40,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Test Docker Image
     steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
     - name: Checkout repository
       uses: actions/checkout@v4
     - name: Build Docker Image
@@ -65,6 +67,8 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Log in to the Container registry
