@@ -7,6 +7,8 @@ COPY go.sum .
 RUN go mod download
 
 COPY . .
+COPY action.sh /action.sh
 RUN go build -ldflags="-s -w" -trimpath -o /issue-creator .
 
-ENTRYPOINT ["action.sh"]
+
+ENTRYPOINT ["/action.sh"]
