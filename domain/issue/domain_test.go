@@ -2,7 +2,6 @@ package issue_test
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -96,7 +95,13 @@ func TestCreate(t *testing.T) {
 			in: In{
 				CheckBeforeCreateIssue: ToPtr(`test -z ""`),
 			},
-			out: types.Issue{},
+			out: types.Issue{
+				Owner:      "rerost",
+				Repository: "issue-creator-for-test",
+				Title:      "Test TestCreate/CheckBeforeCreateIssue_is_success",
+				Body:       "Test Issue",
+				Labels:     []string{"LA_kwDOJt6V-s8AAAABTiHX9w"},
+			},
 		},
 		{
 			name: "CheckBeforeCreateIssue is failed",
@@ -130,7 +135,6 @@ func TestCreate(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			fmt.Println(res)
 
 			if diff := cmp.Diff(res, test.out, cmpopts.IgnoreFields(res, "Body", "URL", "LastIssueURL")); diff != "" {
 				t.Error(diff)
