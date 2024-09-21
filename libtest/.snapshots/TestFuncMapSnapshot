@@ -1,0 +1,151 @@
+
+abbrev: (int, string) -> string
+abbrevboth: (int, int, string) -> string
+add1: (interface {}) -> int64
+add: ([]interface {}) -> int64
+adler32sum: (string) -> string
+ago: (interface {}) -> string
+append: (interface {}, interface {}) -> []interface {}
+atoi: (string) -> int
+b32dec: (string) -> string
+b32enc: (string) -> string
+b64dec: (string) -> string
+b64enc: (string) -> string
+base: (string) -> string
+biggest: (interface {}, []interface {}) -> int64
+buildCustomCert: (string, string) -> sprig.certificate, error
+camelcase: (string) -> string
+cat: ([]interface {}) -> string
+ceil: (interface {}) -> float64
+clean: (string) -> string
+coalesce: ([]interface {}) -> interface {}
+compact: (interface {}) -> []interface {}
+concat: ([]interface {}) -> interface {}
+contains: (string, string) -> bool
+date: (string, interface {}) -> string
+dateInZone: (string, interface {}, string) -> string
+dateModify: (string, time.Time) -> time.Time
+date_in_zone: (string, interface {}, string) -> string
+date_modify: (string, time.Time) -> time.Time
+decryptAES: (string, string) -> string, error
+deepCopy: (interface {}) -> interface {}
+deepEqual: (interface {}, interface {}) -> bool
+default: (interface {}, []interface {}) -> interface {}
+derivePassword: (uint32, string, string, string, string) -> string
+dict: ([]interface {}) -> map[string]interface {}
+dir: (string) -> string
+div: (interface {}, interface {}) -> int64
+empty: (interface {}) -> bool
+encryptAES: (string, string) -> string, error
+env: (string) -> string
+expandenv: (string) -> string
+ext: (string) -> string
+fail: (string) -> string, error
+first: (interface {}) -> interface {}
+float64: (interface {}) -> float64
+floor: (interface {}) -> float64
+genCA: (string, int) -> sprig.certificate, error
+genPrivateKey: (string) -> string
+genSelfSignedCert: (string, []interface {}, []interface {}, int) -> sprig.certificate, error
+genSignedCert: (string, []interface {}, []interface {}, int, sprig.certificate) -> sprig.certificate, error
+getHostByName: (string) -> string
+has: (interface {}, interface {}) -> bool
+hasKey: (map[string]interface {}, string) -> bool
+hasPrefix: (string, string) -> bool
+hasSuffix: (string, string) -> bool
+hello: () -> string
+htmlDate: (interface {}) -> string
+htmlDateInZone: (interface {}, string) -> string
+indent: (int, string) -> string
+initial: (interface {}) -> []interface {}
+initials: (string) -> string
+int64: (interface {}) -> int64
+int: (interface {}) -> int
+isAbs: (string) -> bool
+join: (string, interface {}) -> string
+kebabcase: (string) -> string
+keys: ([]map[string]interface {}) -> []string
+kindIs: (string, interface {}) -> bool
+kindOf: (interface {}) -> string
+last: (interface {}) -> interface {}
+list: ([]interface {}) -> []interface {}
+lower: (string) -> string
+max: (interface {}, []interface {}) -> int64
+merge: (map[string]interface {}, []map[string]interface {}) -> interface {}
+mergeOverwrite: (map[string]interface {}, []map[string]interface {}) -> interface {}
+min: (interface {}, []interface {}) -> int64
+mod: (interface {}, interface {}) -> int64
+mul: (interface {}, []interface {}) -> int64
+nindent: (int, string) -> string
+nospace: (string) -> string
+now: () -> time.Time
+omit: (map[string]interface {}, []string) -> map[string]interface {}
+pick: (map[string]interface {}, []string) -> map[string]interface {}
+pluck: (string, []map[string]interface {}) -> []interface {}
+plural: (string, string, int) -> string
+prepend: (interface {}, interface {}) -> []interface {}
+push: (interface {}, interface {}) -> []interface {}
+quote: ([]interface {}) -> string
+randAlpha: (int) -> string
+randAlphaNum: (int) -> string
+randAscii: (int) -> string
+randNumeric: (int) -> string
+regexFind: (string, string) -> string
+regexFindAll: (string, string, int) -> []string
+regexMatch: (string, string) -> bool
+regexReplaceAll: (string, string, string) -> string
+regexReplaceAllLiteral: (string, string, string) -> string
+regexSplit: (string, string, int) -> []string
+repeat: (int, string) -> string
+replace: (string, string, string) -> string
+rest: (interface {}) -> []interface {}
+reverse: (interface {}) -> []interface {}
+round: (interface {}, int, []float64) -> float64
+semver: (string) -> *semver.Version, error
+semverCompare: (string, string) -> bool, error
+set: (map[string]interface {}, string, interface {}) -> map[string]interface {}
+sha1sum: (string) -> string
+sha256sum: (string) -> string
+shuffle: (string) -> string
+slice: (interface {}, []interface {}) -> interface {}
+snakecase: (string) -> string
+sortAlpha: (interface {}) -> []string
+split: (string, string) -> map[string]string
+splitList: (string, string) -> []string
+splitn: (string, int, string) -> map[string]string
+squote: ([]interface {}) -> string
+sub: (interface {}, interface {}) -> int64
+substr: (int, int, string) -> string
+swapcase: (string) -> string
+ternary: (interface {}, interface {}, bool) -> interface {}
+title: (string) -> string
+toDate: (string, string) -> time.Time
+toDecimal: (interface {}) -> int64
+toJson: (interface {}) -> string
+toPrettyJson: (interface {}) -> string
+toString: (interface {}) -> string
+toStrings: (interface {}) -> []string
+trim: (string) -> string
+trimAll: (string, string) -> string
+trimPrefix: (string, string) -> string
+trimSuffix: (string, string) -> string
+trimall: (string, string) -> string
+trunc: (int, string) -> string
+tuple: ([]interface {}) -> []interface {}
+typeIs: (string, interface {}) -> bool
+typeIsLike: (string, interface {}) -> bool
+typeOf: (interface {}) -> string
+uniq: (interface {}) -> []interface {}
+unixEpoch: (time.Time) -> string
+unset: (map[string]interface {}, string) -> map[string]interface {}
+until: (int) -> []int
+untilStep: (int, int, int) -> []int
+untitle: (string) -> string
+upper: (string) -> string
+urlJoin: (map[string]interface {}) -> string
+urlParse: (string) -> map[string]interface {}
+uuidv4: () -> string
+values: (map[string]interface {}) -> []interface {}
+without: (interface {}, []interface {}) -> []interface {}
+wrap: (int, string) -> string
+wrapWith: (int, string, string) -> string
