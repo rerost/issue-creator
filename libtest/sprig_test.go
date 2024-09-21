@@ -3,7 +3,8 @@ package libtest_test
 import (
 	"fmt"
 	"reflect"
-	"slices"
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/Masterminds/sprig/v3"
@@ -22,45 +23,52 @@ func TestFuncMapSnapshot(t *testing.T) {
 	cupaloy.SnapshotT(t, listStr)
 }
 
+//	map[string]any{
+//	  "Hoge": func() {},
+//	  "AddDateAndFormat": func(format string, d int) string {}
+//	}
+//
+// -> []string{"AddDateAndFormat: (string, int) -> string", "Hoge: () -> ()"}
 func ToFunctionList(t *testing.T, funcMap map[string]any) []string {
 	t.Helper()
-
 	funcs := []string{}
+
 	for funcName, f := range funcMap {
-		funcs = append(
-			funcs,
-			fmt.Sprintf("%s: %s", funcName, FuncToSig(f)),
-		)
+		sig := FuncToSig(t, f)
+		funcs = append(funcs, fmt.Sprintf("%s: %s", funcName, sig))
 	}
 
-	slices.Sort(funcs)
+	// 結果が安定しないためソート
+	sort.StringSlice(funcs).Sort()
 	return funcs
 }
 
 // FuncToString(func Hoge(i int) string)
 // "(int) -> string"
-func FuncToSig(f any) string {
-	funcType := reflect.TypeOf(f)
-
-	sig := "("
-
-	for i := 0; i < funcType.NumIn(); i++ {
-		if i > 0 {
-			sig = sig + ", "
-		}
-		sig = sig + fmt.Sprintf("%v", funcType.In(i))
-	}
-	sig = sig + ") -> "
-
-	if funcType.NumOut() == 0 {
+// FuncToString(func Hoge(i int) *string)
+// "(int) -> *string"
+func FuncToSig(t *testing.T, f any) string {
+	t.Helper()
+	if f == nil {
+		t.Error("function is nil")
 		return ""
 	}
-	for i := 0; i < funcType.NumOut(); i++ {
-		if i > 0 {
-			sig = sig + ", "
-		}
-		sig = sig + fmt.Sprintf("%v", funcType.Out(i))
+
+	ft := reflect.TypeOf(f)
+	if ft.Kind() != reflect.Func {
+		t.Error("not a function")
+		return ""
 	}
 
-	return sig
+	in := []string{}
+	for i := 0; i < ft.NumIn(); i++ {
+		in = append(in, ft.In(i).String())
+	}
+
+	out := []string{}
+	for i := 0; i < ft.NumOut(); i++ {
+		out = append(out, ft.Out(i).String())
+	}
+
+	return fmt.Sprintf("(%s) -> %s", strings.Join(in, ", "), strings.Join(out, ", "))
 }
