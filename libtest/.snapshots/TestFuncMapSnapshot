@@ -2,9 +2,13 @@
 abbrev: (int, string) -> string
 abbrevboth: (int, int, string) -> string
 add1: (interface {}) -> int64
+add1f: (interface {}) -> float64
 add: ([]interface {}) -> int64
+addf: ([]interface {}) -> float64
 adler32sum: (string) -> string
 ago: (interface {}) -> string
+all: ([]interface {}) -> bool
+any: ([]interface {}) -> bool
 append: (interface {}, interface {}) -> []interface {}
 atoi: (string) -> int
 b32dec: (string) -> string
@@ -12,11 +16,13 @@ b32enc: (string) -> string
 b64dec: (string) -> string
 b64enc: (string) -> string
 base: (string) -> string
+bcrypt: (string) -> string
 biggest: (interface {}, []interface {}) -> int64
 buildCustomCert: (string, string) -> sprig.certificate, error
 camelcase: (string) -> string
 cat: ([]interface {}) -> string
 ceil: (interface {}) -> float64
+chunk: (int, interface {}) -> [][]interface {}
 clean: (string) -> string
 coalesce: ([]interface {}) -> interface {}
 compact: (interface {}) -> []interface {}
@@ -33,8 +39,12 @@ deepEqual: (interface {}, interface {}) -> bool
 default: (interface {}, []interface {}) -> interface {}
 derivePassword: (uint32, string, string, string, string) -> string
 dict: ([]interface {}) -> map[string]interface {}
+dig: ([]interface {}) -> interface {}, error
 dir: (string) -> string
 div: (interface {}, interface {}) -> int64
+divf: (interface {}, []interface {}) -> float64
+duration: (interface {}) -> string
+durationRound: (interface {}) -> string
 empty: (interface {}) -> bool
 encryptAES: (string, string) -> string, error
 env: (string) -> string
@@ -44,10 +54,15 @@ fail: (string) -> string, error
 first: (interface {}) -> interface {}
 float64: (interface {}) -> float64
 floor: (interface {}) -> float64
+fromJson: (string) -> interface {}
 genCA: (string, int) -> sprig.certificate, error
+genCAWithKey: (string, int, string) -> sprig.certificate, error
 genPrivateKey: (string) -> string
 genSelfSignedCert: (string, []interface {}, []interface {}, int) -> sprig.certificate, error
+genSelfSignedCertWithKey: (string, []interface {}, []interface {}, int, string) -> sprig.certificate, error
 genSignedCert: (string, []interface {}, []interface {}, int, sprig.certificate) -> sprig.certificate, error
+genSignedCertWithKey: (string, []interface {}, []interface {}, int, sprig.certificate, string) -> sprig.certificate, error
+get: (map[string]interface {}, string) -> interface {}
 getHostByName: (string) -> string
 has: (interface {}, interface {}) -> bool
 hasKey: (map[string]interface {}, string) -> bool
@@ -56,6 +71,7 @@ hasSuffix: (string, string) -> bool
 hello: () -> string
 htmlDate: (interface {}) -> string
 htmlDateInZone: (interface {}, string) -> string
+htpasswd: (string, string) -> string
 indent: (int, string) -> string
 initial: (interface {}) -> []interface {}
 initials: (string) -> string
@@ -71,15 +87,53 @@ last: (interface {}) -> interface {}
 list: ([]interface {}) -> []interface {}
 lower: (string) -> string
 max: (interface {}, []interface {}) -> int64
+maxf: (interface {}, []interface {}) -> float64
 merge: (map[string]interface {}, []map[string]interface {}) -> interface {}
 mergeOverwrite: (map[string]interface {}, []map[string]interface {}) -> interface {}
 min: (interface {}, []interface {}) -> int64
+minf: (interface {}, []interface {}) -> float64
 mod: (interface {}, interface {}) -> int64
 mul: (interface {}, []interface {}) -> int64
+mulf: (interface {}, []interface {}) -> float64
+mustAppend: (interface {}, interface {}) -> []interface {}, error
+mustChunk: (int, interface {}) -> [][]interface {}, error
+mustCompact: (interface {}) -> []interface {}, error
+mustDateModify: (string, time.Time) -> time.Time, error
+mustDeepCopy: (interface {}) -> interface {}, error
+mustFirst: (interface {}) -> interface {}, error
+mustFromJson: (string) -> interface {}, error
+mustHas: (interface {}, interface {}) -> bool, error
+mustInitial: (interface {}) -> []interface {}, error
+mustLast: (interface {}) -> interface {}, error
+mustMerge: (map[string]interface {}, []map[string]interface {}) -> interface {}, error
+mustMergeOverwrite: (map[string]interface {}, []map[string]interface {}) -> interface {}, error
+mustPrepend: (interface {}, interface {}) -> []interface {}, error
+mustPush: (interface {}, interface {}) -> []interface {}, error
+mustRegexFind: (string, string) -> string, error
+mustRegexFindAll: (string, string, int) -> []string, error
+mustRegexMatch: (string, string) -> bool, error
+mustRegexReplaceAll: (string, string, string) -> string, error
+mustRegexReplaceAllLiteral: (string, string, string) -> string, error
+mustRegexSplit: (string, string, int) -> []string, error
+mustRest: (interface {}) -> []interface {}, error
+mustReverse: (interface {}) -> []interface {}, error
+mustSlice: (interface {}, []interface {}) -> interface {}, error
+mustToDate: (string, string) -> time.Time, error
+mustToJson: (interface {}) -> string, error
+mustToPrettyJson: (interface {}) -> string, error
+mustToRawJson: (interface {}) -> string, error
+mustUniq: (interface {}) -> []interface {}, error
+mustWithout: (interface {}, []interface {}) -> []interface {}, error
+must_date_modify: (string, time.Time) -> time.Time, error
 nindent: (int, string) -> string
 nospace: (string) -> string
 now: () -> time.Time
 omit: (map[string]interface {}, []string) -> map[string]interface {}
+osBase: (string) -> string
+osClean: (string) -> string
+osDir: (string) -> string
+osExt: (string) -> string
+osIsAbs: (string) -> bool
 pick: (map[string]interface {}, []string) -> map[string]interface {}
 pluck: (string, []map[string]interface {}) -> []interface {}
 plural: (string, string, int) -> string
@@ -89,10 +143,13 @@ quote: ([]interface {}) -> string
 randAlpha: (int) -> string
 randAlphaNum: (int) -> string
 randAscii: (int) -> string
+randBytes: (int) -> string, error
+randInt: (int, int) -> int
 randNumeric: (int) -> string
 regexFind: (string, string) -> string
 regexFindAll: (string, string, int) -> []string
 regexMatch: (string, string) -> bool
+regexQuoteMeta: (string) -> string
 regexReplaceAll: (string, string, string) -> string
 regexReplaceAllLiteral: (string, string, string) -> string
 regexSplit: (string, string, int) -> []string
@@ -103,9 +160,11 @@ reverse: (interface {}) -> []interface {}
 round: (interface {}, int, []float64) -> float64
 semver: (string) -> *semver.Version, error
 semverCompare: (string, string) -> bool, error
+seq: ([]int) -> string
 set: (map[string]interface {}, string, interface {}) -> map[string]interface {}
 sha1sum: (string) -> string
 sha256sum: (string) -> string
+sha512sum: (string) -> string
 shuffle: (string) -> string
 slice: (interface {}, []interface {}) -> interface {}
 snakecase: (string) -> string
@@ -115,6 +174,7 @@ splitList: (string, string) -> []string
 splitn: (string, int, string) -> map[string]string
 squote: ([]interface {}) -> string
 sub: (interface {}, interface {}) -> int64
+subf: (interface {}, []interface {}) -> float64
 substr: (int, int, string) -> string
 swapcase: (string) -> string
 ternary: (interface {}, interface {}, bool) -> interface {}
@@ -123,6 +183,7 @@ toDate: (string, string) -> time.Time
 toDecimal: (interface {}) -> int64
 toJson: (interface {}) -> string
 toPrettyJson: (interface {}) -> string
+toRawJson: (interface {}) -> string
 toString: (interface {}) -> string
 toStrings: (interface {}) -> []string
 trim: (string) -> string
