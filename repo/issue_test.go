@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v67/github"
+	"github.com/google/go-github/v68/github"
 	"github.com/rerost/issue-creator/repo"
 	"github.com/rerost/issue-creator/types"
 	"github.com/shurcooL/githubv4"
