@@ -8,7 +8,7 @@ package cmd
 
 import (
 	"context"
-	"github.com/google/go-github/v68/github"
+	"github.com/google/go-github/v69/github"
 	"github.com/rerost/issue-creator/domain/issue"
 	"github.com/rerost/issue-creator/domain/schedule"
 	"github.com/rerost/issue-creator/repo"
