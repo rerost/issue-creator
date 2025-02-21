@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/bradleyjkemp/cupaloy/v2 v2.8.0
 	github.com/google/go-cmp v0.6.0
-	github.com/google/go-github/v69 v69.1.0
+	github.com/google/go-github/v69 v69.2.0
 	github.com/google/wire v0.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/shurcooL/githubv4 v0.0.0-20240727222349-48295856cce7
