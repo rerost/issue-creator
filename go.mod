@@ -1,6 +1,8 @@
 module github.com/rerost/issue-creator
 
-go 1.23
+go 1.23.0
+
+toolchain go1.24.0
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
@@ -14,7 +16,7 @@ require (
 	github.com/spf13/pflag v1.0.6
 	github.com/spf13/viper v1.19.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/oauth2 v0.26.0
+	golang.org/x/oauth2 v0.27.0
 )
 
 require (
