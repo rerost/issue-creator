@@ -2,8 +2,6 @@ module github.com/rerost/issue-creator
 
 go 1.23.0
 
-toolchain go1.24.0
-
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/bradleyjkemp/cupaloy/v2 v2.8.0
