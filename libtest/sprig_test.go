@@ -7,20 +7,20 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Masterminds/sprig/v3"
-	"github.com/bradleyjkemp/cupaloy/v2"
+	sprigv3 "github.com/Masterminds/sprig/v3"
+	cupaloyv2 "github.com/bradleyjkemp/cupaloy/v2"
 )
 
 func TestFuncMapSnapshot(t *testing.T) {
 	t.Parallel()
-	l := ToFunctionList(t, sprig.FuncMap())
+	l := ToFunctionList(t, sprigv3.FuncMap())
 
 	listStr := ""
 	for _, sig := range l {
 		listStr = listStr + "\n" + sig
 	}
 
-	cupaloy.SnapshotT(t, listStr)
+	cupaloyv2.SnapshotT(t, listStr)
 }
 
 //	map[string]any{
