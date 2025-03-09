@@ -1,1 +1,1 @@
-FROM ghcr.io/rerost/issue-creator:v0.4.2
+FROM ghcr.io/rerost/issue-creator:v0.4.3
