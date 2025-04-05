@@ -232,7 +232,7 @@ func (r *discussionRepositoryImpl) FindLastIssue(ctx context.Context, templateIs
 
 	lastDiscussion := q.Search.Nodes[0].Discussion
 	for _, node := range q.Search.Nodes {
-		if lastDiscussion.CreatedAt.Time.Before(node.CreatedAt.Time) {
+		if isDateBefore(lastDiscussion.CreatedAt, node.CreatedAt) {
 			// when finding more recent discussion
 			lastDiscussion = node.Discussion
 		}
@@ -305,4 +305,8 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 func (r *discussionRepositoryImpl) IsValidTemplateIssue(i types.Issue) bool {
 	// TODO Check label
 	return true
+}
+
+func isDateBefore(date1, date2 githubv4.Date) bool {
+	return date1.Time.Before(date2.Time)
 }
