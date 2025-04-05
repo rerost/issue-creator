@@ -308,5 +308,5 @@ func (r *discussionRepositoryImpl) IsValidTemplateIssue(i types.Issue) bool {
 }
 
 func isDateBefore(date1, date2 githubv4.Date) bool {
-	return date1.Time.Unix() < date2.Time.Unix()
+	return date1.String() < date2.String()
 }
