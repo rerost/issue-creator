@@ -186,15 +186,15 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 	}
 
 	meta := map[string]string{
-		categoryKey: fmt.Sprintf("%+v", q.Repository.Discussion.Category.Id),
+		categoryKey: fmt.Sprintf("%+v", q.Repository.Category.Id),
 	}
 
 	return types.Issue{
 		Owner:      discussionData.Owner,
 		Repository: discussionData.Repository,
 
-		Title:  string(q.Repository.Discussion.Title),
-		Body:   string(q.Repository.Discussion.Body),
+		Title:  string(q.Repository.Title),
+		Body:   string(q.Repository.Body),
 		URL:    (*string)(&q.Repository.Discussion.Url),
 		Labels: q.Repository.Discussion.LabelIDs(),
 		Meta:   &meta,
@@ -232,7 +232,7 @@ func (r *discussionRepositoryImpl) FindLastIssue(ctx context.Context, templateIs
 
 	lastDiscussion := q.Search.Nodes[0].Discussion
 	for _, node := range q.Search.Nodes {
-		if lastDiscussion.CreatedAt.Time.Before(node.Discussion.CreatedAt.Time) {
+		if lastDiscussion.CreatedAt.Before(node.Discussion.CreatedAt) {
 			// when finding more recent discussion
 			lastDiscussion = node.Discussion
 		}
