@@ -203,5 +203,5 @@ func isDiscussion(templateIssueURL string) bool {
 		zap.L().Debug("error", zap.Int("path length", len(s)))
 		return false
 	}
-	return "discussions" == s[3]
+	return s[3] == "discussions"
 }
