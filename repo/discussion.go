@@ -195,8 +195,8 @@ func (r *discussionRepositoryImpl) FindByURL(ctx context.Context, issueURL strin
 
 		Title:  string(q.Repository.Title),
 		Body:   string(q.Repository.Body),
-		URL:    (*string)(&q.Repository.Discussion.Url),
-		Labels: q.Repository.Discussion.LabelIDs(),
+		URL:    (*string)(&q.Repository.Url),
+		Labels: q.Repository.LabelIDs(),
 		Meta:   &meta,
 	}, nil
 }
@@ -232,7 +232,7 @@ func (r *discussionRepositoryImpl) FindLastIssue(ctx context.Context, templateIs
 
 	lastDiscussion := q.Search.Nodes[0].Discussion
 	for _, node := range q.Search.Nodes {
-		if lastDiscussion.CreatedAt.Before(node.Discussion.CreatedAt) {
+		if lastDiscussion.CreatedAt.Time.Before(node.CreatedAt.Time) {
 			// when finding more recent discussion
 			lastDiscussion = node.Discussion
 		}
