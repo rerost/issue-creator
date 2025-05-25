@@ -299,6 +299,10 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 		return errors.WithStack(err)
 	}
 
+	// Wait for the close operation to be reflected in the API
+	// Similar to the Create method which waits for label assignment
+	time.Sleep(time.Second)
+
 	return nil
 }
 
