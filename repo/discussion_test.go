@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "embed"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -286,6 +287,7 @@ func TestCloseByURL(t *testing.T) {
 				t.Error(err)
 				return
 			}
+
 			if !isClosed {
 				t.Errorf("%v is not close", test.in)
 			}
