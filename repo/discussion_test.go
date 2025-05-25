@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "embed"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -281,11 +282,21 @@ func TestCloseByURL(t *testing.T) {
 				return
 			}
 
-			isClosed, err := IsClosed(ctx, *testIssue.URL)
-			if err != nil {
-				t.Error(err)
-				return
+			// Wait for the close operation to complete with retry mechanism
+			var isClosed bool
+			maxRetries := 10
+			for i := 0; i < maxRetries; i++ {
+				time.Sleep(time.Millisecond * 500) // Wait 500ms between attempts
+				isClosed, err = IsClosed(ctx, *testIssue.URL)
+				if err != nil {
+					t.Error(err)
+					return
+				}
+				if isClosed {
+					break
+				}
 			}
+			
 			if !isClosed {
 				t.Errorf("%v is not close", test.in)
 			}
