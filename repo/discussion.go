@@ -32,6 +32,7 @@ type (
 		Body     githubv4.String
 		Url      githubv4.String
 		Title    githubv4.String
+		Closed   *githubv4.Boolean
 		Category struct {
 			Id   githubv4.ID
 			Name githubv4.String
@@ -297,6 +298,11 @@ func (r *discussionRepositoryImpl) CloseByURL(ctx context.Context, issueURL stri
 	err = r.ghc.Mutate(ctx, &m, input, nil)
 	if err != nil {
 		return errors.WithStack(err)
+	}
+
+	// Verify the discussion was actually closed using the mutation response
+	if m.CloseDiscussion.Discussion.Closed == nil || !bool(*m.CloseDiscussion.Discussion.Closed) {
+		return errors.New("discussion close operation failed: closed field is false or nil")
 	}
 
 	return nil
