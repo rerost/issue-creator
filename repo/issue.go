@@ -143,7 +143,6 @@ func (ir *issueRepositoryImpl) CloseByURL(ctx context.Context, issueURL string) 
 		return errors.WithStack(err)
 	}
 
-	fmt.Println(issueData.Owner, issueData.Repository, issueData.IssueNumber, closed)
 	_, _, err = ir.ghc.Issues.Edit(ctx, issueData.Owner, issueData.Repository, issueData.IssueNumber, &github.IssueRequest{State: &closed})
 	if err != nil {
 		return errors.WithStack(err)
