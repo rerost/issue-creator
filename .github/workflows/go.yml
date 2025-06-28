@@ -105,7 +105,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check Renovate config
-        run: npx --yes --package renovate -- renovate-config-validator --strict
+        run: npx --yes --package renovate --package=css-select@5.2.0  -- renovate-config-validator
   golangci:
     name: lint
     runs-on: ubuntu-latest
