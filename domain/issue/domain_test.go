@@ -116,7 +116,6 @@ func TestCreate(t *testing.T) {
 	for _, test := range testCase {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			t.Parallel()
 			tempIssue, err := issueRepo.Create(ctx, types.Issue{
 				Owner:      "rerost",
 				Repository: "issue-creator-for-test",
@@ -129,8 +128,6 @@ func TestCreate(t *testing.T) {
 				t.Error(err)
 				return
 			}
-
-			time.Sleep(1 * time.Second) // Wait for the issue to be created
 
 			issueService := NewTestIssueService(ctx, repo, true, test.in.CheckBeforeCreateIssue)
 			res, err := issueService.Create(ctx, *tempIssue.URL)
