@@ -36,9 +36,10 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-brews:
-  - repository:
+homebrew_casks:
+  - name: issue-creator
+    repository:
       owner: rerost
       name: homebrew-tools
-    directory: Formula
+    directory: Casks
     homepage: https://github.com/rerost/issue-creator
