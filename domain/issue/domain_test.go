@@ -2,6 +2,7 @@ package issue_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -115,7 +116,6 @@ func TestCreate(t *testing.T) {
 	for _, test := range testCase {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			t.Parallel()
 			tempIssue, err := issueRepo.Create(ctx, types.Issue{
 				Owner:      "rerost",
 				Repository: "issue-creator-for-test",
@@ -132,6 +132,7 @@ func TestCreate(t *testing.T) {
 			issueService := NewTestIssueService(ctx, repo, true, test.in.CheckBeforeCreateIssue)
 			res, err := issueService.Create(ctx, *tempIssue.URL)
 			if err != nil {
+				fmt.Printf("%+v\n", err)
 				t.Error(err)
 				return
 			}
