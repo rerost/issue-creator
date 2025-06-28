@@ -130,6 +130,8 @@ func TestCreate(t *testing.T) {
 				return
 			}
 
+			t.Sleep(1 * time.Second) // Wait for the issue to be created
+
 			issueService := NewTestIssueService(ctx, repo, true, test.in.CheckBeforeCreateIssue)
 			res, err := issueService.Create(ctx, *tempIssue.URL)
 			if err != nil {
