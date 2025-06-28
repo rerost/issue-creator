@@ -2,6 +2,7 @@ package issue_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -132,6 +133,7 @@ func TestCreate(t *testing.T) {
 			issueService := NewTestIssueService(ctx, repo, true, test.in.CheckBeforeCreateIssue)
 			res, err := issueService.Create(ctx, *tempIssue.URL)
 			if err != nil {
+				fmt.Printf("%+v\n", err)
 				t.Error(err)
 				return
 			}
