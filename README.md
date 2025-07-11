@@ -1,7 +1,7 @@
 # issue-creator
 [![codecov](https://codecov.io/gh/rerost/issue-creator/branch/master/graph/badge.svg?token=fh77gKdsoh)](https://codecov.io/gh/rerost/issue-creator)
 
-This is a CLI tool for automatically generating periodically created issues.
+Automated GitHub Issue Scheduler — CLI & GitHub Action for recurring tasks
 
 e.g.
 - Template Issue: https://github.com/rerost/issue-creator/issues/1
@@ -10,10 +10,6 @@ e.g.
 ## Breaking Change
 v0.1.x -> v0.2.x: The behavior has changed from moving to the Archive Category when closing a GitHub Discussion to simply closing the Discussion
 
-
-## Flow
-![image](https://user-images.githubusercontent.com/5201588/63219703-a4848b00-c1b2-11e9-90a7-aa2a4920d47b.png)
-
 ## Install
 ```
 $ go install github.com/rerost/issue-creator@latest
@@ -21,25 +17,10 @@ $ issue-creator
 ```
 
 ## Usage
-NOTE: please set `GithubAccessToken` for create issue, `K8sCommands` for schedule issue
+Run by GitHub Actions
 
-```
-issue-creator render https://github.com/rerost/issue-creator/issues/1
-issue-creator create https://github.com/rerost/issue-creator/issues/1
-issue-creator create https://github.com/rerost/issue-creator/issues/1 --CloseLastIssue
-issue-creator schedule render '30 5 * * 1' https://github.com/rerost/issue-creator/issues/1
-issue-creator schedule apply '30 5 * * 1' https://github.com/rerost/issue-creator/issues/1
-issue-creator schedule apply '30 5 * * 1' https://github.com/rerost/issue-creator/issues/1 --CloseLastIssue
-```
-
-## Discussion
-```
-issue-creator create https://github.com/rerost/issue-creator/discussions/48
-```
-
-## Use from GitHub Actions
 Example
-```
+```yaml
 on:
   schedule:
     - cron: "0 0 * * MON"
@@ -57,7 +38,7 @@ jobs:
 
 or
 
-```
+```yaml
 on:
   schedule:
     - cron: "0 0 * * MON"
