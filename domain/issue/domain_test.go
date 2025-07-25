@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/google/go-github/v73/github"
+	"github.com/google/go-github/v74/github"
 	"github.com/rerost/issue-creator/domain/issue"
 	"github.com/rerost/issue-creator/repo"
 	"github.com/rerost/issue-creator/types"
