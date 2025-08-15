@@ -33,7 +33,7 @@ jobs:
           go install github.com/github/github-mcp-server/cmd/github-mcp-server@3fe88ee5e00528ef7416da719a163556307dd169
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
