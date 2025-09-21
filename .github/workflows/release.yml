@@ -4,6 +4,9 @@ on:
   push:
     tags:
     - "v[0-9]+.[0-9]+.[0-9]+"
+
+env:
+  GOTOOLCHAIN: go1.25.0+auto
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
