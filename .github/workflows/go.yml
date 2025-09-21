@@ -8,13 +8,16 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  GOTOOLCHAIN: go1.25.0+auto
+
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-go@v5
+    - uses: actions/setup-go@v6
       with:
         go-version-file: 'go.mod'
     - name: Build issue-creator
@@ -24,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-go@v5
+    - uses: actions/setup-go@v6
       with:
         go-version-file: 'go.mod'
     - name: Test
@@ -82,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-go@v5
+    - uses: actions/setup-go@v6
       with:
         go-version-file: 'go.mod'
     - name: Check Go Generate
@@ -111,10 +114,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: 'go.mod'
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
           version: v2.1.0
+          install-mode: goinstall
