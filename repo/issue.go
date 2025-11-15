@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/google/go-github/v78/github"
+	"github.com/google/go-github/v79/github"
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/types"
 	"github.com/shurcooL/githubv4"
