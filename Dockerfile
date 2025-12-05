@@ -11,7 +11,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,target=. \
     go build -ldflags="-s -w" -trimpath -o /issue-creator .
 
-FROM alpine:3.22.2
+FROM alpine:3.23.0
 
 COPY action.sh /action.sh
 COPY --from=builder /issue-creator /issue-creator
