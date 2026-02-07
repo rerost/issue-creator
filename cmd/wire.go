@@ -7,7 +7,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/go-github/v81/github"
+	"github.com/google/go-github/v82/github"
 	"github.com/google/wire"
 	"github.com/rerost/issue-creator/domain/issue"
 	"github.com/rerost/issue-creator/domain/schedule"
