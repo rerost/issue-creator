@@ -27,7 +27,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.25'
+          go-version: '1.26'
       - name: Install MCP Server
         run: |
           go install github.com/github/github-mcp-server/cmd/github-mcp-server@3fe88ee5e00528ef7416da719a163556307dd169
