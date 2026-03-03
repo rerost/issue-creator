@@ -1,6 +1,6 @@
 package types
 
-import "github.com/google/go-github/v83/github"
+import "github.com/google/go-github/v84/github"
 
 type Issue struct {
 	Owner      string
