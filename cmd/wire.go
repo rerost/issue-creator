@@ -7,7 +7,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/go-github/v86/github"
+	"github.com/google/go-github/v88/github"
 	"github.com/google/wire"
 	"github.com/rerost/issue-creator/domain/issue"
 	"github.com/rerost/issue-creator/domain/schedule"
@@ -27,7 +27,10 @@ func NewGithubClient(ctx context.Context, cfg Config) *github.Client {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
-	c := github.NewClient(tc)
+	c, err := github.NewClient(github.WithHTTPClient(tc))
+	if err != nil {
+		panic(err)
+	}
 	return c
 }
 
