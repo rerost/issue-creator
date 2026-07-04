@@ -61,45 +61,35 @@ jobs:
     runs-on: ubuntu-latest
     name: Test Docker Image
     steps:
-    - name: Start Buildx setup
-      id: buildx-setup
-      background: true
-      run: docker buildx create --name ci-builder --driver docker-container --bootstrap --use
     - name: Checkout repository
       uses: actions/checkout@v7
-    - name: Restore Go caches for Docker build
-      id: docker-go-cache
-      uses: actions/cache@v4
+    - name: Pre-pull runtime base image
+      id: base-pull
+      background: true
+      run: docker pull "$(awk '/^FROM alpine/{print $2}' Dockerfile)"
+    - uses: actions/setup-go@v6
+      with:
+        go-version-file: 'go.mod'
+        cache: false
+    - uses: actions/cache@v4
       with:
         path: |
-          go-mod-cache
-          go-build-cache
-        key: docker-go-${{ hashFiles('go.sum') }}
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-image-test-${{ hashFiles('go.sum') }}
         restore-keys: |
-          docker-go-
-    - name: Wait for Buildx setup
-      wait: buildx-setup
-    - name: Inject Go caches into Docker build
-      uses: reproducible-containers/buildkit-cache-dance@v3
-      with:
-        builder: ci-builder
-        cache-map: |
-          {
-            "go-mod-cache": "/go/pkg/mod",
-            "go-build-cache": "/root/.cache/go-build"
-          }
-        skip-extraction: ${{ steps.docker-go-cache.outputs.cache-hit }}
+          ${{ runner.os }}-go-image-test-
+    # Dockerfile の builder ステージ相当を Go キャッシュの効くランナー側でビルドし、
+    # --build-context で builder ステージだけ差し替える (フルの Dockerfile ビルドは
+    # docker_build_and_push が毎回検証している)
+    - name: Build issue-creator binary
+      run: |
+        mkdir -p /tmp/builder-out
+        CGO_ENABLED=0 go build -ldflags="-s -w" -trimpath -o /tmp/builder-out/issue-creator .
+    - name: Wait for base image
+      wait: base-pull
     - name: Build image
-      uses: docker/build-push-action@v7
-      with:
-        builder: ci-builder
-        context: .
-        load: true
-        tags: test
-        cache-from: |
-          type=gha,scope=master-test
-          type=gha,scope=${{ github.ref_name }}-test
-        cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-test
+      run: docker build --build-context builder=/tmp/builder-out -t test .
     - name: Check # Run https://github.com/rerost/issue-creator/blob/bf8f39be0ca7d96d22d2f946b20360978c80ea9f/action.yml#L21
     # https://github.com/rerost/issue-creator-for-test/issues/102 を元にissueを作るテスト
       # 2つのテストは同じテスト用リポジトリの issue を作成・クローズするため並列化できない
@@ -162,10 +152,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: |
-            type=gha,scope=master-push
-            type=gha,scope=${{ github.ref_name }}-push
-          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-push
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
   check-generate:
     name: Check Go Generate
     runs-on: ubuntu-latest
