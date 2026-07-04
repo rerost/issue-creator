@@ -1,0 +1,24 @@
+name: Renovate Config
+
+# renovate.json を変更したときだけ検証する (npx で renovate 本体を
+# 毎回ダウンロードすると40秒以上かかるため、Go CI から分離)
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - renovate.json
+      - .github/workflows/renovate-config.yml
+  pull_request:
+    branches: [ master ]
+    paths:
+      - renovate.json
+      - .github/workflows/renovate-config.yml
+
+jobs:
+  check-renovate-config:
+    name: Check Renovate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check Renovate config
+        run: npx --yes --package renovate --package=css-select@5.2.0  -- renovate-config-validator
