@@ -102,13 +102,10 @@ jobs:
         cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-test
     - name: Check # Run https://github.com/rerost/issue-creator/blob/bf8f39be0ca7d96d22d2f946b20360978c80ea9f/action.yml#L21
     # https://github.com/rerost/issue-creator-for-test/issues/102 を元にissueを作るテスト
+      # 2つのテストは同じテスト用リポジトリの issue を作成・クローズするため並列化できない
       run: |
-        docker run test '' rerost/issue-creator-for-test 102 true "echo 'OK'" $TEST_TOKEN false &
-        first=$!
-        docker run test https://github.com/rerost/issue-creator-for-test/issues/102 '' '' true "echo 'OK'" $TEST_TOKEN false &
-        second=$!
-        wait $first
-        wait $second
+        docker run test '' rerost/issue-creator-for-test 102 true "echo 'OK'" $TEST_TOKEN false
+        docker run test https://github.com/rerost/issue-creator-for-test/issues/102 '' '' true "echo 'OK'" $TEST_TOKEN false
       env:
         TEST_TOKEN: ${{ secrets.TEST_TOKEN }}
   docker_build_and_push:
