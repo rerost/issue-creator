@@ -8,10 +8,6 @@ import (
 	"github.com/rerost/issue-creator/types"
 )
 
-func StrToPtr(s string) *string {
-	return &s
-}
-
 func TestFromGithubLabels(t *testing.T) {
 	testCase := []struct {
 		name string
@@ -29,7 +25,7 @@ func TestFromGithubLabels(t *testing.T) {
 			name: "one",
 			in: []*github.Label{
 				{
-					Name: StrToPtr("test"),
+					Name: "test",
 				},
 			},
 			out: []string{"test"},
@@ -38,7 +34,7 @@ func TestFromGithubLabels(t *testing.T) {
 			name: "include nil",
 			in: []*github.Label{
 				{
-					Name: nil,
+					Name: "",
 				},
 			},
 			out: []string{""},
