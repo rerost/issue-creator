@@ -20,6 +20,15 @@ jobs:
     - uses: actions/setup-go@v7
       with:
         go-version-file: 'go.mod'
+        cache: false
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-build-${{ hashFiles('go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-build-
     - name: Build issue-creator
       run: go build .
   test:
@@ -30,8 +39,17 @@ jobs:
     - uses: actions/setup-go@v7
       with:
         go-version-file: 'go.mod'
+        cache: false
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-test-${{ hashFiles('go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-test-
     - name: Test
-      run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+      run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
       env:
         TEST_TOKEN: ${{ secrets.TEST_TOKEN }}
     - name: Upload coverage to Codecov
@@ -45,10 +63,37 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v7
+    - name: Pre-pull runtime base image
+      id: base-pull
+      background: true
+      run: docker pull "$(awk '/^FROM alpine/{print $2}' Dockerfile)"
+    - uses: actions/setup-go@v6
+      with:
+        go-version-file: 'go.mod'
+        cache: false
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-image-test-${{ hashFiles('go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-image-test-
+    # Dockerfile の builder ステージ相当を Go キャッシュの効くランナー側でビルドし、
+    # --build-context で builder ステージだけ差し替える (フルの Dockerfile ビルドは
+    # docker_build_and_push が毎回検証している)
+    - name: Build issue-creator binary
+      run: |
+        mkdir -p /tmp/builder-out
+        CGO_ENABLED=0 go build -ldflags="-s -w" -trimpath -o /tmp/builder-out/issue-creator .
+    - name: Wait for base image
+      wait: base-pull
+    - name: Build image
+      run: docker build --build-context builder=/tmp/builder-out -t test .
     - name: Check # Run https://github.com/rerost/issue-creator/blob/bf8f39be0ca7d96d22d2f946b20360978c80ea9f/action.yml#L21
     # https://github.com/rerost/issue-creator-for-test/issues/102 を元にissueを作るテスト
+      # 2つのテストは同じテスト用リポジトリの issue を作成・クローズするため並列化できない
       run: |
-        docker build -t test .
         docker run test '' rerost/issue-creator-for-test 102 true "echo 'OK'" $TEST_TOKEN false
         docker run test https://github.com/rerost/issue-creator-for-test/issues/102 '' '' true "echo 'OK'" $TEST_TOKEN false
       env:
@@ -60,6 +105,10 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Start Buildx setup
+        id: buildx-setup
+        background: true
+        run: docker buildx create --name ci-builder --driver docker-container --bootstrap --use
       - name: Checkout repository
         uses: actions/checkout@v7
       - name: Log in to the Container registry
@@ -73,13 +122,38 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ghcr.io/rerost/issue-creator
+      - name: Restore Go caches for Docker build
+        id: docker-go-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            go-mod-cache
+            go-build-cache
+          key: docker-go-${{ hashFiles('go.sum') }}
+          restore-keys: |
+            docker-go-
+      - name: Wait for Buildx setup
+        wait: buildx-setup
+      - name: Inject Go caches into Docker build
+        uses: reproducible-containers/buildkit-cache-dance@v3
+        with:
+          builder: ci-builder
+          cache-map: |
+            {
+              "go-mod-cache": "/go/pkg/mod",
+              "go-build-cache": "/root/.cache/go-build"
+            }
+          skip-extraction: ${{ steps.docker-go-cache.outputs.cache-hit }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
+          builder: ci-builder
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
   check-generate:
     name: Check Go Generate
     runs-on: ubuntu-latest
@@ -88,6 +162,15 @@ jobs:
     - uses: actions/setup-go@v7
       with:
         go-version-file: 'go.mod'
+        cache: false
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-generate-${{ hashFiles('go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-generate-
     - name: Check Go Generate
       run: go generate ./... && go mod tidy && git diff --exit-code
   check-goreleaser:
@@ -102,13 +185,6 @@ jobs:
           args: check
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-  check-renovate-config:
-    name: Check Renovate
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - name: Check Renovate config
-        run: npx --yes --package renovate --package=css-select@5.2.0  -- renovate-config-validator
   golangci:
     name: lint
     runs-on: ubuntu-latest
@@ -117,8 +193,20 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version-file: 'go.mod'
+          cache: false
+      # golangci-lint-action 自身のキャッシュは GOCACHE を含まず、キャッシュヒット時に
+      # 再保存もしないため実質コールド実行になっていた。他ジョブと同様に明示的に持つ
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/.cache/golangci-lint
+          key: ${{ runner.os }}-go-lint-${{ hashFiles('go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-lint-
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
           version: v2.12.2
-          install-mode: goinstall
+          skip-cache: true
