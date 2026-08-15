@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/google/go-github/v89/github"
+	"github.com/google/go-github/v90/github"
 	"github.com/pkg/errors"
 	"github.com/rerost/issue-creator/types"
 	"github.com/shurcooL/githubv4"
@@ -49,14 +49,14 @@ type issueRepositoryImpl struct {
 }
 
 func (ir *issueRepositoryImpl) Create(ctx context.Context, issue types.Issue) (types.Issue, error) {
-	gi := github.IssueRequest{
-		Title:  &issue.Title,
+	gi := github.CreateIssueRequest{
+		Title:  issue.Title,
 		Body:   &issue.Body,
-		Labels: &issue.Labels,
+		Labels: issue.Labels,
 	}
 	zap.L().Debug("create issue", zap.String("owner", issue.Owner))
 	zap.L().Debug("create issue", zap.String("repository", issue.Repository))
-	i, _, err := ir.ghc.Issues.Create(ctx, issue.Owner, issue.Repository, &gi)
+	i, _, err := ir.ghc.Issues.Create(ctx, issue.Owner, issue.Repository, gi)
 	if err != nil {
 		return types.Issue{}, errors.WithStack(err)
 	}
@@ -143,7 +143,7 @@ func (ir *issueRepositoryImpl) CloseByURL(ctx context.Context, issueURL string) 
 		return errors.WithStack(err)
 	}
 
-	_, _, err = ir.ghc.Issues.Edit(ctx, issueData.Owner, issueData.Repository, issueData.IssueNumber, &github.IssueRequest{State: &closed})
+	_, _, err = ir.ghc.Issues.Update(ctx, issueData.Owner, issueData.Repository, issueData.IssueNumber, github.UpdateIssueRequest{State: &closed})
 	if err != nil {
 		return errors.WithStack(err)
 	}
