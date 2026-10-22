@@ -9,7 +9,7 @@ on:
     branches: [ master ]
 
 env:
-  GOTOOLCHAIN: go1.25.0+auto
+  GOTOOLCHAIN: go1.27.3+auto
 
 jobs:
   build:
